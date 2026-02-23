@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="min-h-screen bg-gray-50 flex">
+    
+    {% include 'admin/sidebar.html' %}
+
+    <div class="flex-1 overflow-auto p-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Manage Plans</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="p-4 mb-4 text-sm rounded-lg bg-green-100 text-green-700">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-fit">
+                <h3 class="text-lg font-semibold mb-4 border-b pb-2">Add New Plan</h3>
+                <form action="{{ url_for('admin.plans') }}" method="POST" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Plan Name (e.g. CNET DIAMOND)</label>
+                        <input type="text" name="name" required class="mt-1 block w-full rounded-md border-gray-300 p-2 border">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Monthly Price (₹)</label>
+                        <input type="number" name="price" step="0.01" required class="mt-1 block w-full rounded-md border-gray-300 p-2 border">
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700">Save Plan</button>
+                </form>
+            </div>
+
+            <div class="md:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Plan Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for plan in plans %}
+                        <tr>
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ plan.name }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">₹{{ plan.price }}</td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="2" class="px-6 py-4 text-center text-gray-500">No plans added yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

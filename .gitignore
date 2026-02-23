@@ -1,0 +1,23 @@
+# Virtual Environment
+venv/
+env/
+
+# Python Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Database (Do not push real client data to GitHub)
+*.db
+*.sqlite3
+
+# Environment Variables
+.env
+
+# Generated Files & Uploads
+invoices/
+uploads/
+
+# Mac OS System Files
+.DS_Store

@@ -1,0 +1,15 @@
+<div class="w-64 bg-white shadow-md flex flex-col h-screen sticky top-0">
+    <div class="h-16 flex items-center px-6 border-b border-gray-200">
+        <h1 class="text-xl font-bold text-gray-800">Admin Panel</h1>
+    </div>
+    <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+        <a href="{{ url_for('admin.dashboard') }}" class="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md"><i class="fas fa-home mr-2 w-5 text-center"></i> Dashboard</a>
+        <a href="{{ url_for('admin.clients') }}" class="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md"><i class="fas fa-users mr-2 w-5 text-center"></i> Clients</a>
+        
+        <a href="{{ url_for('admin.plans') }}" class="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md"><i class="fas fa-box mr-2 w-5 text-center"></i> Plans</a>
+        
+        <a href="{{ url_for('admin.invoices') }}" class="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md"><i class="fas fa-file-invoice mr-2 w-5 text-center"></i> Invoices</a>
+        <a href="{{ url_for('admin.settings') }}" class="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md"><i class="fas fa-cog mr-2 w-5 text-center"></i> Settings</a>
+        <a href="{{ url_for('admin.logout') }}" class="block px-4 py-2 text-red-600 hover:bg-red-50 rounded-md mt-8"><i class="fas fa-sign-out-alt mr-2 w-5 text-center"></i> Logout</a>
+    </nav>
+</div>
