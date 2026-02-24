@@ -83,7 +83,7 @@
                                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Client Details</th>
                                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Contact</th>
                                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Service</th>
-                                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Area</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-100">
@@ -91,7 +91,7 @@
                                 <tr class="hover:bg-gray-50 transition">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="font-bold text-gray-900">{{ client.name }}</div>
-                                        <div class="text-xs font-medium text-gray-500">ID: #{{ client.id }}</div>
+                                        <div class="text-xs font-medium text-gray-500">ID: #{{ client.id }} | {{ client.area or '-' }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm font-semibold text-gray-800">{{ client.mobile }}</div>
@@ -101,7 +101,11 @@
                                             {{ client.service_type }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-600">{{ client.area or '-' }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="{{ url_for('admin.edit_client', client_id=client.id) }}" class="text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-1.5 rounded-lg transition inline-flex items-center">
+                                            <i class="fas fa-edit mr-1.5"></i> Edit
+                                        </a>
+                                    </td>
                                 </tr>
                                 {% else %}
                                 <tr><td colspan="4" class="px-6 py-10 text-center text-gray-500 font-medium">No clients found. Add your first client to get started!</td></tr>
@@ -115,13 +119,16 @@
                     <h3 class="text-lg font-bold text-gray-800 px-1">Registered Clients</h3>
                     {% for client in clients %}
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 relative transition hover:shadow-md">
-                        <div class="absolute top-4 right-4">
+                        <div class="absolute top-4 right-4 flex space-x-2">
                             <span class="px-2.5 py-1 text-[10px] font-bold uppercase rounded-full {% if client.service_type == 'Fiber' %} bg-green-100 text-green-800 {% elif client.service_type == 'CCTV' %} bg-blue-100 text-blue-800 {% else %} bg-purple-100 text-purple-800 {% endif %}">
                                 {{ client.service_type }}
                             </span>
+                            <a href="{{ url_for('admin.edit_client', client_id=client.id) }}" class="text-blue-600 bg-blue-50 p-1.5 rounded-md hover:bg-blue-100 transition">
+                                <i class="fas fa-edit"></i>
+                            </a>
                         </div>
                         
-                        <h4 class="font-extrabold text-gray-900 text-lg mb-0.5">{{ client.name }}</h4>
+                        <h4 class="font-extrabold text-gray-900 text-lg mb-0.5 w-3/4">{{ client.name }}</h4>
                         <p class="text-xs font-medium text-gray-400 mb-3">Client ID: #{{ client.id }}</p>
                         
                         <div class="space-y-2 mt-3 pt-3 border-t border-gray-50">

@@ -212,6 +212,43 @@ def complete_request(req_id):
     flash('Request marked as completed!', 'success')
     return redirect(url_for('admin.service_requests'))
 
+# --- Delete Invoice Route ---
+@admin_bp.route('/invoice/delete/<int:invoice_id>', methods=['POST'])
+@login_required
+def delete_invoice(invoice_id):
+    invoice = Invoice.query.get_or_404(invoice_id)
+    
+    # Storage clean karne ke liye PDF file bhi delete karein
+    if invoice.pdf_filename:
+        pdf_path = os.path.join(current_app.config['INVOICE_FOLDER'], invoice.pdf_filename)
+        if os.path.exists(pdf_path):
+            os.remove(pdf_path)
+            
+    db.session.delete(invoice)
+    db.session.commit()
+    flash(f'Invoice #{invoice.invoice_number} deleted successfully!', 'success')
+    return redirect(url_for('admin.invoices'))
+
+# --- Edit Client Route ---
+@admin_bp.route('/client/edit/<int:client_id>', methods=['GET', 'POST'])
+@login_required
+def edit_client(client_id):
+    client = Client.query.get_or_404(client_id)
+    if request.method == 'POST':
+        client.name = request.form.get('name')
+        client.mobile = request.form.get('mobile')
+        client.alt_mobile = request.form.get('alt_mobile')
+        client.address = request.form.get('address')
+        client.area = request.form.get('area')
+        client.service_type = request.form.get('service_type')
+        client.notes = request.form.get('notes')
+        
+        db.session.commit()
+        flash('Client details updated successfully!', 'success')
+        return redirect(url_for('admin.clients'))
+        
+    return render_template('admin/edit_client.html', client=client)
+
 # --- Settings ---
 @admin_bp.route('/settings', methods=['GET', 'POST'])
 @login_required
