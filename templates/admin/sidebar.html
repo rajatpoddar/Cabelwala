@@ -1,15 +1,45 @@
-<div class="w-64 bg-white shadow-md flex flex-col h-screen sticky top-0">
-    <div class="h-16 flex items-center px-6 border-b border-gray-200">
+<div class="md:hidden fixed top-0 w-full bg-white shadow-md z-50 flex justify-between items-center p-4">
+    <h1 class="text-xl font-bold text-gray-800">{{ config.BUSINESS_NAME }}</h1>
+    <button onclick="toggleSidebar()" class="text-gray-600 focus:outline-none bg-gray-100 p-2 rounded">
+        <i class="fas fa-bars text-xl"></i>
+    </button>
+</div>
+
+<div id="admin-sidebar" class="fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-300 ease-in-out z-40 w-64 bg-white shadow-lg md:shadow-md flex flex-col h-screen pt-16 md:pt-0">
+    <div class="hidden md:flex h-16 items-center px-6 border-b border-gray-200">
         <h1 class="text-xl font-bold text-gray-800">Admin Panel</h1>
     </div>
-    <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-        <a href="{{ url_for('admin.dashboard') }}" class="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md"><i class="fas fa-home mr-2 w-5 text-center"></i> Dashboard</a>
-        <a href="{{ url_for('admin.clients') }}" class="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md"><i class="fas fa-users mr-2 w-5 text-center"></i> Clients</a>
+    
+    <nav class="flex-1 p-4 space-y-2 overflow-y-auto mt-4 md:mt-0">
+        <a href="{{ url_for('admin.dashboard') }}" class="block px-4 py-3 text-gray-600 hover:bg-blue-50 hover:text-blue-700 font-medium rounded-lg transition"><i class="fas fa-home w-6 text-center"></i> Dashboard</a>
+        <a href="{{ url_for('admin.service_requests') }}" class="block px-4 py-3 text-gray-600 hover:bg-blue-50 hover:text-blue-700 font-medium rounded-lg transition"><i class="fas fa-bell w-6 text-center"></i> Service Requests</a>
+        <a href="{{ url_for('admin.clients') }}" class="block px-4 py-3 text-gray-600 hover:bg-blue-50 hover:text-blue-700 font-medium rounded-lg transition"><i class="fas fa-users w-6 text-center"></i> Clients</a>
+        <a href="{{ url_for('admin.plans') }}" class="block px-4 py-3 text-gray-600 hover:bg-blue-50 hover:text-blue-700 font-medium rounded-lg transition"><i class="fas fa-box w-6 text-center"></i> Plans</a>
+        <a href="{{ url_for('admin.invoices') }}" class="block px-4 py-3 text-gray-600 hover:bg-blue-50 hover:text-blue-700 font-medium rounded-lg transition"><i class="fas fa-file-invoice w-6 text-center"></i> Invoices</a>
+        <a href="{{ url_for('admin.settings') }}" class="block px-4 py-3 text-gray-600 hover:bg-blue-50 hover:text-blue-700 font-medium rounded-lg transition"><i class="fas fa-cog w-6 text-center"></i> Settings</a>
         
-        <a href="{{ url_for('admin.plans') }}" class="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md"><i class="fas fa-box mr-2 w-5 text-center"></i> Plans</a>
-        
-        <a href="{{ url_for('admin.invoices') }}" class="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md"><i class="fas fa-file-invoice mr-2 w-5 text-center"></i> Invoices</a>
-        <a href="{{ url_for('admin.settings') }}" class="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md"><i class="fas fa-cog mr-2 w-5 text-center"></i> Settings</a>
-        <a href="{{ url_for('admin.logout') }}" class="block px-4 py-2 text-red-600 hover:bg-red-50 rounded-md mt-8"><i class="fas fa-sign-out-alt mr-2 w-5 text-center"></i> Logout</a>
+        <div class="pt-8 mt-8 border-t border-gray-100">
+            <a href="{{ url_for('admin.logout') }}" class="block px-4 py-3 text-red-600 hover:bg-red-50 font-medium rounded-lg transition"><i class="fas fa-sign-out-alt w-6 text-center"></i> Logout</a>
+        </div>
     </nav>
 </div>
+
+<div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-30 hidden transition-opacity"></div>
+
+<script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('admin-sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        
+        sidebar.classList.toggle('-translate-x-full');
+        overlay.classList.toggle('hidden');
+    }
+</script>
+
+<style>
+    @media (max-width: 768px) {
+        .flex-1.overflow-auto {
+            padding-top: 5rem !important; 
+        }
+    }
+</style>

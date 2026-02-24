@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  cabelwala_web:
+    build: .
+    container_name: cabelwala_app
+    ports:
+      - "4582:5000"
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=your_strong_secret_key_here
+      # Database ko /app/data folder me point kar rahe hain taaki volume se persist ho sake
+      - DATABASE_URL=sqlite:////app/data/isp_cctv.db
+    volumes:
+      # Data folders mapping (Left side is your NAS folder, Right side is container path)
+      - ./data:/app/data
+      - ./invoices:/app/invoices
+      - ./uploads:/app/uploads
+    restart: unless-stopped

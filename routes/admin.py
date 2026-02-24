@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, jsonify, send_from_directory
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash
-from models import db, Admin, Client, Invoice, InvoiceItem, BusinessProfile, Plan, Project
+from models import db, Admin, Client, Invoice, InvoiceItem, BusinessProfile, Plan, Project, ServiceRequest
 from datetime import datetime
 import os
 from weasyprint import HTML
@@ -11,7 +11,6 @@ from io import BytesIO
 
 admin_bp = Blueprint('admin', __name__)
 
-# --- Helper: Auto-generate Invoice Number ---
 def generate_invoice_number():
     year = datetime.now().year
     prefix = f"ISP-{year}-"
@@ -25,7 +24,6 @@ def generate_invoice_number():
         
     return f"{prefix}{new_seq:04d}"
 
-# --- Authentication ---
 @admin_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -42,14 +40,13 @@ def logout():
     logout_user()
     return redirect(url_for('admin.login'))
 
-# --- Dashboard ---
 @admin_bp.route('/')
 @login_required
 def dashboard():
     total_clients = Client.query.count()
     active_fiber = Client.query.filter_by(service_type='Fiber').count()
+    pending_requests = ServiceRequest.query.filter_by(status='Pending').count()
     
-    # Calculate revenue
     paid_invoices = Invoice.query.filter_by(status='Paid').all()
     total_revenue = sum(inv.total for inv in paid_invoices)
     
@@ -58,18 +55,29 @@ def dashboard():
     return render_template('admin/dashboard.html', 
                            total_clients=total_clients, 
                            active_fiber=active_fiber,
+                           pending_requests=pending_requests,
                            total_revenue=total_revenue,
                            recent_invoices=recent_invoices)
 
-# --- Invoice Generation & PDF ---
-# --- Invoices List ---
 @admin_bp.route('/invoices')
 @login_required
 def invoices():
     all_invoices = Invoice.query.order_by(Invoice.created_at.desc()).all()
     return render_template('admin/invoices.html', invoices=all_invoices)
 
-# --- Create Invoice ---
+# Naya Route - Status Toggle ke liye
+@admin_bp.route('/invoice/<int:invoice_id>/toggle_status', methods=['POST'])
+@login_required
+def toggle_invoice_status(invoice_id):
+    invoice = Invoice.query.get_or_404(invoice_id)
+    if invoice.status == 'Paid':
+        invoice.status = 'Unpaid'
+    else:
+        invoice.status = 'Paid'
+    db.session.commit()
+    flash(f'Invoice #{invoice.invoice_number} marked as {invoice.status}', 'success')
+    return redirect(url_for('admin.invoices'))
+
 @admin_bp.route('/invoice/create', methods=['GET', 'POST'])
 @login_required
 def create_invoice():
@@ -79,21 +87,19 @@ def create_invoice():
         tax = float(request.form.get('tax', 0))
         status = request.form.get('status', 'Unpaid')
         
-        # Multiple Items Data Fetching
         descriptions = request.form.getlist('description[]')
         quantities = request.form.getlist('quantity[]')
         prices = request.form.getlist('price[]')
         
         inv_number = generate_invoice_number()
         
-        # Subtotal calculate karna sabhi items ko jodkar
         subtotal = 0
         new_invoice = Invoice(
             invoice_number=inv_number, client_id=client_id, bill_for=bill_for,
             subtotal=0, tax=tax, total=0, status=status
         )
         db.session.add(new_invoice)
-        db.session.flush() # ID generate karne ke liye
+        db.session.flush()
         
         for i in range(len(descriptions)):
             desc = descriptions[i]
@@ -112,14 +118,12 @@ def create_invoice():
         new_invoice.total = subtotal + tax
         db.session.commit()
         
-        # Logo Base64 Fix (Taaki PDF me logo 100% dikhe)
         logo_base64 = None
         logo_path = os.path.join(current_app.config.get('BASE_DIR', os.getcwd()), 'static', 'logo.png')
         if os.path.exists(logo_path):
             with open(logo_path, "rb") as image_file:
                 logo_base64 = base64.b64encode(image_file.read()).decode("utf-8")
         
-        # QR Code Generation
         business = BusinessProfile.query.first() or BusinessProfile()
         qr_base64 = None
         if business.upi_id:
@@ -151,28 +155,11 @@ def create_invoice():
     plans = Plan.query.order_by(Plan.name).all()
     return render_template('admin/create_invoice.html', clients=clients, plans=plans)
 
-# --- Download PDF Route ---
 @admin_bp.route('/invoice/download/<filename>')
 @login_required
 def download_invoice(filename):
     return send_from_directory(current_app.config['INVOICE_FOLDER'], filename, as_attachment=True)
 
-# --- API: Get Previous Client Bill ---
-@admin_bp.route('/api/client/<int:client_id>/last_invoice')
-@login_required
-def get_last_invoice(client_id):
-    last_inv = Invoice.query.filter_by(client_id=client_id).order_by(Invoice.created_at.desc()).first()
-    if last_inv:
-        return jsonify({
-            'found': True,
-            'bill_for': last_inv.bill_for,
-            'item_description': last_inv.item_description,
-            'total': last_inv.total,
-            'date': last_inv.created_at.strftime('%d %b %Y')
-        })
-    return jsonify({'found': False})
-
-    # --- Client Management ---
 @admin_bp.route('/clients', methods=['GET', 'POST'])
 @login_required
 def clients():
@@ -194,7 +181,6 @@ def clients():
     all_clients = Client.query.order_by(Client.created_at.desc()).all()
     return render_template('admin/clients.html', clients=all_clients)
 
-# --- Plans Management ---
 @admin_bp.route('/plans', methods=['GET', 'POST'])
 @login_required
 def plans():
@@ -210,7 +196,22 @@ def plans():
     all_plans = Plan.query.all()
     return render_template('admin/plans.html', plans=all_plans)
 
-# --- Settings ---
+# Service Requests Route
+@admin_bp.route('/requests', methods=['GET'])
+@login_required
+def service_requests():
+    requests_list = ServiceRequest.query.order_by(ServiceRequest.created_at.desc()).all()
+    return render_template('admin/requests.html', requests=requests_list)
+
+@admin_bp.route('/requests/<int:req_id>/complete', methods=['POST'])
+@login_required
+def complete_request(req_id):
+    req = ServiceRequest.query.get_or_404(req_id)
+    req.status = 'Completed'
+    db.session.commit()
+    flash('Request marked as completed!', 'success')
+    return redirect(url_for('admin.service_requests'))
+
 @admin_bp.route('/settings', methods=['GET', 'POST'])
 @login_required
 def settings():
@@ -232,8 +233,11 @@ def settings():
         profile.ifsc_code = request.form.get('ifsc_code')
         profile.branch = request.form.get('branch')
         profile.upi_id = request.form.get('upi_id')
-        profile.payee_name = request.form.get('payee_name') # Naya addition
+        profile.payee_name = request.form.get('payee_name') 
         profile.terms = request.form.get('terms')
+        
+        profile.youtube_channel_url = request.form.get('youtube_channel_url')
+        profile.intro_video_url = request.form.get('intro_video_url')
         
         db.session.commit()
         flash('Business settings updated successfully!', 'success')

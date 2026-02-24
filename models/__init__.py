@@ -24,6 +24,8 @@ class BusinessProfile(db.Model):
     upi_id = db.Column(db.String(100))
     payee_name = db.Column(db.String(100))
     terms = db.Column(db.Text, default="WE DEAL IN: JIO FIBER INSTALLATION, CCTV CAMERA INSTALLATION, NETWORKING PRODUCTS")
+    youtube_channel_url = db.Column(db.String(255), default="https://www.youtube.com/@Poddar_gvlogs")
+    intro_video_url = db.Column(db.String(255), default="https://www.youtube.com/embed?listType=user_uploads&list=Poddar_gvlogs")
 
 class Client(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -49,7 +51,6 @@ class Invoice(db.Model):
     client_id = db.Column(db.Integer, db.ForeignKey('client.id'), nullable=False)
     bill_for = db.Column(db.String(50), default='INTERNET RECHARGE')
     
-    # Naya: One-to-Many Relationship for multiple items
     items = db.relationship('InvoiceItem', backref='invoice', lazy=True, cascade="all, delete-orphan")
     
     subtotal = db.Column(db.Float, nullable=False)
@@ -59,7 +60,6 @@ class Invoice(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     pdf_filename = db.Column(db.String(100))
 
-# Naya Table for Bill Items
 class InvoiceItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     invoice_id = db.Column(db.Integer, db.ForeignKey('invoice.id'), nullable=False)
@@ -74,4 +74,14 @@ class Project(db.Model):
     category = db.Column(db.String(50), nullable=False)
     image_filename = db.Column(db.String(100))
     description = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+# Naya table Service Requests ke liye
+class ServiceRequest(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    mobile = db.Column(db.String(20), nullable=False)
+    service = db.Column(db.String(100), nullable=False)
+    address = db.Column(db.Text, nullable=False)
+    status = db.Column(db.String(20), default='Pending') 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

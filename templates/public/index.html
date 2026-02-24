@@ -1,38 +1,207 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="relative bg-gradient-to-br from-gray-900 to-blue-900 text-white overflow-hidden">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 flex flex-col items-center text-center">
-        <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-4">
-            {{ config.BUSINESS_NAME }}
+<nav class="bg-white shadow-sm fixed w-full z-50 top-0">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-20 items-center">
+            <div class="flex-shrink-0 flex items-center">
+                <a href="#" class="flex items-center space-x-3 group">
+                    <div class="bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-xl p-2.5 shadow-md group-hover:shadow-lg transition">
+                        <i class="fas fa-wifi text-xl"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-800 to-indigo-900 tracking-tight leading-none">
+                            {{ config.BUSINESS_NAME }}
+                        </span>
+                        <span class="text-[10px] uppercase font-bold text-gray-400 tracking-widest mt-1">Smart Solutions</span>
+                    </div>
+                </a>
+            </div>
+            <div class="hidden md:flex space-x-8 items-center">
+                <a href="#about" class="text-gray-600 hover:text-blue-700 font-semibold transition">About Us</a>
+                <a href="#portfolio" class="text-gray-600 hover:text-blue-700 font-semibold transition">Our Work</a>
+                <a href="#request-service" class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-5 py-2.5 rounded-lg hover:shadow-lg font-bold transition">Get Connection</a>
+            </div>
+            <div class="md:hidden flex items-center">
+                <button onclick="toggleMobileMenu()" class="text-gray-700 hover:text-blue-600 focus:outline-none p-2">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="mobile-menu" class="hidden md:hidden bg-white border-t absolute w-full left-0 top-20 shadow-xl z-40">
+        <a href="#about" onclick="toggleMobileMenu()" class="block px-6 py-4 text-gray-700 hover:bg-blue-50 font-semibold border-b">About Us</a>
+        <a href="#portfolio" onclick="toggleMobileMenu()" class="block px-6 py-4 text-gray-700 hover:bg-blue-50 font-semibold border-b">Our Work</a>
+        <a href="#request-service" onclick="toggleMobileMenu()" class="block px-6 py-4 bg-blue-50 text-blue-800 font-bold border-b">Request Connection <i class="fas fa-arrow-right ml-2 text-sm"></i></a>
+        {% if business and business.youtube_channel_url %}
+        <a href="{{ business.youtube_channel_url }}" target="_blank" class="block px-6 py-4 text-red-600 font-bold"><i class="fab fa-youtube mr-2 text-xl"></i> Visit our Channel</a>
+        {% endif %}
+    </div>
+</nav>
+
+<div class="relative bg-gradient-to-br from-gray-900 via-blue-900 to-black text-white overflow-hidden pt-24">
+    <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 flex flex-col items-center text-center">
+        <span class="px-4 py-1.5 rounded-full bg-blue-800/40 text-blue-100 text-sm font-bold mb-6 tracking-wider border border-blue-400/30 backdrop-blur-sm shadow-inner">
+            <i class="fas fa-map-marker-alt mr-2 text-red-400"></i>ᴅᴇᴏɢʜᴀʀ • ᴊʜᴀʀᴋʜᴀɴᴅ
+        </span>
+        <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-tight">
+            Premium Tech Solutions
         </h1>
-        <p class="text-xl md:text-2xl text-blue-200 mb-8 max-w-2xl">
-            High-Speed Fiber Internet & Professional CCTV Security Solutions.
+        <p class="text-xl md:text-2xl text-blue-100 mb-10 max-w-3xl leading-relaxed">
+            High-Speed Jio WiFi Broadband & Professional CCTV Security Solutions for your Home and Business.
         </p>
-        <a href="#contact" class="bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-1">
-            Get Connection
-        </a>
+        <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-5 w-full sm:w-auto px-4">
+            <a href="#request-service" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-xl shadow-[0_0_15px_rgba(37,99,235,0.5)] transition duration-300 transform hover:-translate-y-1 w-full sm:w-auto flex justify-center items-center">
+                <i class="fas fa-bolt mr-2 text-yellow-300"></i> Request Connection
+            </a>
+            
+            {% if business and business.youtube_channel_url %}
+            <a href="{{ business.youtube_channel_url }}" target="_blank" class="bg-red-600 hover:bg-red-500 text-white font-bold py-4 px-8 rounded-xl shadow-lg transition duration-300 transform hover:-translate-y-1 w-full sm:w-auto flex justify-center items-center">
+                <i class="fab fa-youtube mr-2 text-xl"></i> YouTube Channel
+            </a>
+            {% endif %}
+        </div>
     </div>
 </div>
 
-<div class="py-16 bg-white" id="services">
+<div id="about" class="py-20 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="p-6 bg-gray-50 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition">
-                <i class="fas fa-wifi text-4xl text-blue-600 mb-4"></i>
-                <h3 class="text-xl font-bold mb-2">Fiber Internet</h3>
-                <p class="text-gray-600">Ultra-fast, reliable fiber optic connections for home and business.</p>
+        <div class="bg-blue-50 rounded-3xl p-8 md:p-12 shadow-sm border border-blue-100 flex flex-col md:flex-row items-center">
+            <div class="md:w-1/2 mb-8 md:mb-0 pr-0 md:pr-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-video text-red-600 mr-3"></i> Welcome to Poddar_GVlogs!
+                </h2>
+                <p class="text-lg text-gray-700 mb-6 font-medium">
+                    Your one-stop channel for everything about Jio WiFi Broadband, CCTV Cameras, and Smart Tech Solutions 🔌📶📹
+                </p>
+                <ul class="space-y-4 text-gray-700 font-medium">
+                    <li class="flex items-start"><i class="fas fa-check-circle text-green-500 mt-1 mr-3 text-lg"></i> Step-by-step setup guides for JioFiber and WiFi routers</li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-green-500 mt-1 mr-3 text-lg"></i> CCTV camera installation tips and reviews</li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-green-500 mt-1 mr-3 text-lg"></i> Network troubleshooting & speed improvement tricks</li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-green-500 mt-1 mr-3 text-lg"></i> Real-life demos and easy tutorials for beginners</li>
+                </ul>
             </div>
-            <div class="p-6 bg-gray-50 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition">
-                <i class="fas fa-video text-4xl text-blue-600 mb-4"></i>
-                <h3 class="text-xl font-bold mb-2">CCTV Installation</h3>
-                <p class="text-gray-600">HD security camera systems with remote mobile viewing.</p>
-            </div>
-            <div class="p-6 bg-gray-50 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition">
-                <i class="fas fa-tools text-4xl text-blue-600 mb-4"></i>
-                <h3 class="text-xl font-bold mb-2">Maintenance & Support</h3>
-                <p class="text-gray-600">24/7 dedicated local support and rapid hardware maintenance.</p>
+            <div class="md:w-1/2 w-full">
+                <div class="aspect-w-16 aspect-h-9 rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-black">
+                    {% if business and business.intro_video_url %}
+                        {% if '.mp4' in business.intro_video_url.lower() %}
+                            <video class="w-full h-64 md:h-80 object-cover" controls controlsList="nodownload" autoplay muted loop>
+                                <source src="{{ business.intro_video_url }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        {% else %}
+                            <iframe class="w-full h-64 md:h-80 object-cover" src="{{ business.intro_video_url }}" frameborder="0" allowfullscreen></iframe>
+                        {% endif %}
+                    {% else %}
+                        <iframe class="w-full h-64 md:h-80 object-cover" src="https://www.youtube.com/embed?listType=user_uploads&list=Poddar_gvlogs" frameborder="0" allowfullscreen></iframe>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<div id="portfolio" class="py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-900">Our Recent Installations</h2>
+            <p class="mt-4 text-gray-600 font-medium">Check out some of our real-life fieldwork and setups.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            {% set shorts = ['e8TnjVswja4', 'Z1tuNdq_T3A', 'j9S2u09S_3A', '48-DcfEg1TA'] %}
+            {% for short_id in shorts %}
+            <div class="bg-white rounded-2xl shadow-md overflow-hidden transform transition hover:-translate-y-2 border border-gray-100">
+                <div class="aspect-[9/16] bg-gray-100 relative">
+                    {% if short_id == 'VIDEO_ID_1' %}
+                        <div class="absolute inset-0 flex items-center justify-center flex-col p-6 text-center">
+                            <i class="fab fa-youtube text-red-500 text-6xl mb-3"></i>
+                            <p class="text-sm text-gray-600 font-bold">Replace IDs in index.html</p>
+                        </div>
+                    {% else %}
+                        <iframe class="w-full h-full" src="https://www.youtube.com/embed/{{ short_id }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="mt-12 text-center">
+            {% if business and business.youtube_channel_url %}
+            <a href="{{ business.youtube_channel_url }}/shorts" target="_blank" class="inline-flex items-center font-bold text-lg text-blue-600 hover:text-blue-800 transition">
+                Watch all our shorts on YouTube <i class="fas fa-arrow-right ml-2 mt-1"></i>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div id="request-service" class="py-20 bg-white">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-xl shadow-sm text-center font-semibold" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-8 text-center text-white">
+                <h2 class="text-3xl font-bold mb-2">Request Service Instantly</h2>
+                <p class="opacity-90 font-medium">Fill out this form and our team will get back to you shortly.</p>
+            </div>
+            <div class="p-8 md:p-10">
+                <form action="{{ url_for('public.index') }}" method="POST" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Full Name</label>
+                            <input type="text" name="req_name" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Mobile Number</label>
+                            <input type="tel" name="req_mobile" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Service Required</label>
+                        <select name="req_service" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+                            <option value="">-- Select a Service --</option>
+                            <option value="JioFiber New Connection">JioFiber New Connection</option>
+                            <option value="CCTV Installation">CCTV Installation</option>
+                            <option value="Both (Fiber + CCTV)">Both (Fiber + CCTV)</option>
+                            <option value="Maintenance / Repair">Maintenance / Repair</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Full Address (Deoghar Area)</label>
+                        <textarea name="req_address" rows="3" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition" placeholder="House No, Street, Area..."></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded-xl shadow-lg transition flex justify-center items-center text-lg mt-4">
+                        <i class="fas fa-paper-plane mr-3"></i> Submit Request Securely
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="bg-gray-900 text-gray-400 py-10 text-center border-t border-gray-800">
+    <p class="font-medium">&copy; 2024 {{ config.BUSINESS_NAME }}. All Rights Reserved.</p>
+</footer>
+
+<script>
+    function toggleMobileMenu() {
+        const menu = document.getElementById('mobile-menu');
+        if(menu.classList.contains('hidden')) {
+            menu.classList.remove('hidden');
+        } else {
+            menu.classList.add('hidden');
+        }
+    }
+</script>
 {% endblock %}

@@ -5,20 +5,24 @@
     {% include 'admin/sidebar.html' %}
 
     <div class="flex-1 overflow-auto">
-        <header class="h-16 bg-white shadow-sm flex items-center justify-between px-8">
+        <header class="hidden md:flex h-16 bg-white shadow-sm items-center justify-between px-8">
             <h2 class="text-xl font-semibold text-gray-800">Overview</h2>
-            <span class="text-sm text-gray-500">Welcome, Admin</span>
+            <span class="text-sm font-medium text-gray-500">Welcome, Admin</span>
         </header>
 
-        <main class="p-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <main class="p-4 md:p-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                     <div class="text-gray-500 text-sm font-medium mb-1">Total Clients</div>
                     <div class="text-3xl font-bold text-gray-800">{{ total_clients }}</div>
                 </div>
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <div class="text-gray-500 text-sm font-medium mb-1">Active Fiber Connections</div>
+                    <div class="text-gray-500 text-sm font-medium mb-1">Active Fiber</div>
                     <div class="text-3xl font-bold text-blue-600">{{ active_fiber }}</div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-yellow-200 bg-yellow-50">
+                    <div class="text-yellow-700 text-sm font-medium mb-1">New Service Requests</div>
+                    <div class="text-3xl font-bold text-yellow-600">{{ pending_requests }}</div>
                 </div>
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                     <div class="text-gray-500 text-sm font-medium mb-1">Total Revenue</div>
@@ -28,8 +32,8 @@
 
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mt-8">
                 <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                    <h3 class="text-lg font-semibold text-gray-800">Recent Invoices</h3>
-                    <a href="{{ url_for('admin.invoices') }}" class="text-sm text-blue-600 hover:text-blue-800">View All</a>
+                    <h3 class="text-lg font-bold text-gray-800">Recent Invoices</h3>
+                    <a href="{{ url_for('admin.invoices') }}" class="text-sm font-medium text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-1 rounded">View All</a>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
@@ -37,7 +41,6 @@
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Invoice</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Client</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                             </tr>
@@ -45,16 +48,15 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                             {% for invoice in recent_invoices %}
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">#{{ invoice.invoice_number }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">#{{ invoice.invoice_number }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ invoice.client.name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ invoice.created_at.strftime('%d/%m/%Y') }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">₹{{ invoice.total }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-blue-700">₹{{ invoice.total }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {% if invoice.status == 'Paid' %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">{{ invoice.status }}</span>
+                                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-bold rounded-full {% if invoice.status == 'Paid' %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">{{ invoice.status }}</span>
                                 </td>
                             </tr>
                             {% else %}
-                            <tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">No recent invoices.</td></tr>
+                            <tr><td colspan="4" class="px-6 py-4 text-center text-gray-500 font-medium">No recent invoices.</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
