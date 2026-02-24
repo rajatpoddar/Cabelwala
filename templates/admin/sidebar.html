@@ -1,30 +1,69 @@
-<div class="md:hidden fixed top-0 w-full bg-white shadow-md z-50 flex justify-between items-center p-4">
-    <h1 class="text-xl font-bold text-gray-800">{{ config.BUSINESS_NAME }}</h1>
-    <button onclick="toggleSidebar()" class="text-gray-600 focus:outline-none bg-gray-100 p-2 rounded">
+<div class="md:hidden fixed top-0 w-full bg-white/90 backdrop-blur-md shadow-sm z-50 flex justify-between items-center p-4 border-b border-gray-100">
+    <div class="flex items-center space-x-2">
+        <div class="bg-blue-600 text-white p-1.5 rounded-lg shadow-sm">
+            <i class="fas fa-shield-alt text-sm"></i>
+        </div>
+        <h1 class="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-indigo-800">{{ config.BUSINESS_NAME }}</h1>
+    </div>
+    <button onclick="toggleSidebar()" class="text-gray-600 focus:outline-none hover:bg-gray-100 p-2 rounded-lg transition">
         <i class="fas fa-bars text-xl"></i>
     </button>
 </div>
 
-<div id="admin-sidebar" class="fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-300 ease-in-out z-40 w-64 bg-white shadow-lg md:shadow-md flex flex-col h-screen pt-16 md:pt-0">
-    <div class="hidden md:flex h-16 items-center px-6 border-b border-gray-200">
-        <h1 class="text-xl font-bold text-gray-800">Admin Panel</h1>
+<div id="admin-sidebar" class="fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out z-50 w-64 bg-white border-r border-gray-100 flex flex-col h-screen pt-16 md:pt-0 shadow-2xl md:shadow-none">
+    
+    <div class="hidden md:flex h-20 items-center px-6 border-b border-gray-100">
+        <div class="bg-gradient-to-br from-blue-600 to-indigo-700 text-white p-2.5 rounded-xl mr-3 shadow-md">
+            <i class="fas fa-shield-alt text-lg"></i>
+        </div>
+        <h1 class="text-xl font-extrabold text-gray-800 tracking-tight">Admin Panel</h1>
     </div>
     
-    <nav class="flex-1 p-4 space-y-2 overflow-y-auto mt-4 md:mt-0">
-        <a href="{{ url_for('admin.dashboard') }}" class="block px-4 py-3 text-gray-600 hover:bg-blue-50 hover:text-blue-700 font-medium rounded-lg transition"><i class="fas fa-home w-6 text-center"></i> Dashboard</a>
-        <a href="{{ url_for('admin.service_requests') }}" class="block px-4 py-3 text-gray-600 hover:bg-blue-50 hover:text-blue-700 font-medium rounded-lg transition"><i class="fas fa-bell w-6 text-center"></i> Service Requests</a>
-        <a href="{{ url_for('admin.clients') }}" class="block px-4 py-3 text-gray-600 hover:bg-blue-50 hover:text-blue-700 font-medium rounded-lg transition"><i class="fas fa-users w-6 text-center"></i> Clients</a>
-        <a href="{{ url_for('admin.plans') }}" class="block px-4 py-3 text-gray-600 hover:bg-blue-50 hover:text-blue-700 font-medium rounded-lg transition"><i class="fas fa-box w-6 text-center"></i> Plans</a>
-        <a href="{{ url_for('admin.invoices') }}" class="block px-4 py-3 text-gray-600 hover:bg-blue-50 hover:text-blue-700 font-medium rounded-lg transition"><i class="fas fa-file-invoice w-6 text-center"></i> Invoices</a>
-        <a href="{{ url_for('admin.settings') }}" class="block px-4 py-3 text-gray-600 hover:bg-blue-50 hover:text-blue-700 font-medium rounded-lg transition"><i class="fas fa-cog w-6 text-center"></i> Settings</a>
+    <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto mt-2 md:mt-0 custom-scrollbar">
         
-        <div class="pt-8 mt-8 border-t border-gray-100">
-            <a href="{{ url_for('admin.logout') }}" class="block px-4 py-3 text-red-600 hover:bg-red-50 font-medium rounded-lg transition"><i class="fas fa-sign-out-alt w-6 text-center"></i> Logout</a>
-        </div>
+        <p class="px-4 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest mb-3">Main Menu</p>
+        
+        <a href="{{ url_for('admin.dashboard') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-blue-50 hover:text-blue-700 font-semibold rounded-xl transition group">
+            <i class="fas fa-home w-6 text-center text-gray-400 group-hover:text-blue-600 transition"></i> 
+            <span class="ml-2">Dashboard</span>
+        </a>
+        
+        <a href="{{ url_for('admin.service_requests') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-blue-50 hover:text-blue-700 font-semibold rounded-xl transition group">
+            <i class="fas fa-bell w-6 text-center text-gray-400 group-hover:text-blue-600 transition"></i> 
+            <span class="ml-2">Requests</span>
+        </a>
+        
+        <a href="{{ url_for('admin.clients') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-blue-50 hover:text-blue-700 font-semibold rounded-xl transition group">
+            <i class="fas fa-users w-6 text-center text-gray-400 group-hover:text-blue-600 transition"></i> 
+            <span class="ml-2">Clients</span>
+        </a>
+        
+        <a href="{{ url_for('admin.plans') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-blue-50 hover:text-blue-700 font-semibold rounded-xl transition group">
+            <i class="fas fa-box w-6 text-center text-gray-400 group-hover:text-blue-600 transition"></i> 
+            <span class="ml-2">Plans</span>
+        </a>
+        
+        <a href="{{ url_for('admin.invoices') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-blue-50 hover:text-blue-700 font-semibold rounded-xl transition group">
+            <i class="fas fa-file-invoice-dollar w-6 text-center text-gray-400 group-hover:text-blue-600 transition"></i> 
+            <span class="ml-2">Invoices</span>
+        </a>
+        
+        <p class="px-4 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest mb-3 mt-8">System</p>
+        
+        <a href="{{ url_for('admin.settings') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-blue-50 hover:text-blue-700 font-semibold rounded-xl transition group">
+            <i class="fas fa-cog w-6 text-center text-gray-400 group-hover:text-blue-600 transition"></i> 
+            <span class="ml-2">Settings</span>
+        </a>
     </nav>
+    
+    <div class="p-4 border-t border-gray-100 bg-gray-50/50">
+        <a href="{{ url_for('admin.logout') }}" class="flex items-center justify-center w-full px-4 py-3 text-red-600 hover:bg-red-50 hover:text-red-700 font-bold rounded-xl transition border border-transparent hover:border-red-100">
+            <i class="fas fa-sign-out-alt mr-2"></i> Logout
+        </a>
+    </div>
 </div>
 
-<div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-30 hidden transition-opacity"></div>
+<div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-40 hidden transition-opacity duration-300"></div>
 
 <script>
     function toggleSidebar() {
@@ -39,7 +78,18 @@
 <style>
     @media (max-width: 768px) {
         .flex-1.overflow-auto {
-            padding-top: 5rem !important; 
+            padding-top: 6rem !important; 
         }
+    }
+    /* Custom thin scrollbar for sidebar */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #e5e7eb;
+        border-radius: 20px;
     }
 </style>

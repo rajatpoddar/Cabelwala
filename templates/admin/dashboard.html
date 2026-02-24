@@ -6,61 +6,120 @@
 
     <div class="flex-1 overflow-auto">
         <header class="hidden md:flex h-16 bg-white shadow-sm items-center justify-between px-8">
-            <h2 class="text-xl font-semibold text-gray-800">Overview</h2>
-            <span class="text-sm font-medium text-gray-500">Welcome, Admin</span>
+            <h2 class="text-xl font-bold text-gray-800">Dashboard Overview</h2>
+            <div class="flex items-center space-x-3">
+                <span class="bg-blue-100 text-blue-800 p-2 rounded-full h-8 w-8 flex items-center justify-center font-bold text-sm"><i class="fas fa-user"></i></span>
+                <span class="text-sm font-semibold text-gray-600">Admin</span>
+            </div>
         </header>
 
         <main class="p-4 md:p-8">
+            
+            <div class="md:hidden mb-6 mt-2">
+                <h2 class="text-2xl font-extrabold text-gray-900">Dashboard</h2>
+                <p class="text-sm text-gray-500 font-medium">Here's what's happening today.</p>
+            </div>
+
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <div class="text-gray-500 text-sm font-medium mb-1">Total Clients</div>
-                    <div class="text-3xl font-bold text-gray-800">{{ total_clients }}</div>
+                
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between transition hover:shadow-md">
+                    <div>
+                        <div class="text-gray-500 text-xs font-bold uppercase tracking-wider mb-1">Total Clients</div>
+                        <div class="text-3xl font-black text-gray-800">{{ total_clients }}</div>
+                    </div>
+                    <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shadow-inner">
+                        <i class="fas fa-users text-xl"></i>
+                    </div>
                 </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <div class="text-gray-500 text-sm font-medium mb-1">Active Fiber</div>
-                    <div class="text-3xl font-bold text-blue-600">{{ active_fiber }}</div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between transition hover:shadow-md">
+                    <div>
+                        <div class="text-gray-500 text-xs font-bold uppercase tracking-wider mb-1">Active Fiber</div>
+                        <div class="text-3xl font-black text-indigo-600">{{ active_fiber }}</div>
+                    </div>
+                    <div class="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-inner">
+                        <i class="fas fa-wifi text-xl"></i>
+                    </div>
                 </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-yellow-200 bg-yellow-50">
-                    <div class="text-yellow-700 text-sm font-medium mb-1">New Service Requests</div>
-                    <div class="text-3xl font-bold text-yellow-600">{{ pending_requests }}</div>
+
+                <div class="bg-gradient-to-br from-yellow-50 to-white p-5 rounded-2xl shadow-sm border border-yellow-200 flex items-center justify-between transition hover:shadow-md">
+                    <div>
+                        <div class="text-yellow-700 text-xs font-bold uppercase tracking-wider mb-1">New Requests</div>
+                        <div class="text-3xl font-black text-yellow-600">{{ pending_requests }}</div>
+                    </div>
+                    <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600 shadow-inner">
+                        <i class="fas fa-bell text-xl"></i>
+                    </div>
                 </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <div class="text-gray-500 text-sm font-medium mb-1">Total Revenue</div>
-                    <div class="text-3xl font-bold text-green-600">₹{{ total_revenue }}</div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between transition hover:shadow-md">
+                    <div>
+                        <div class="text-gray-500 text-xs font-bold uppercase tracking-wider mb-1">Total Revenue</div>
+                        <div class="text-3xl font-black text-emerald-600">₹{{ total_revenue }}</div>
+                    </div>
+                    <div class="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 shadow-inner">
+                        <i class="fas fa-wallet text-xl"></i>
+                    </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mt-8">
-                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mt-4">
+                <div class="px-5 md:px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
                     <h3 class="text-lg font-bold text-gray-800">Recent Invoices</h3>
-                    <a href="{{ url_for('admin.invoices') }}" class="text-sm font-medium text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-1 rounded">View All</a>
+                    <a href="{{ url_for('admin.invoices') }}" class="text-xs font-bold text-blue-700 hover:text-blue-800 bg-blue-100 px-3 py-1.5 rounded-lg transition">View All</a>
                 </div>
-                <div class="overflow-x-auto">
+                
+                <div class="hidden md:block overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                        <thead class="bg-white">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Invoice</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Client</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Invoice</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Client</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Amount</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tbody class="bg-white divide-y divide-gray-100">
                             {% for invoice in recent_invoices %}
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">#{{ invoice.invoice_number }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ invoice.client.name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-blue-700">₹{{ invoice.total }}</td>
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-800">#{{ invoice.invoice_number }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-600">{{ invoice.client.name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-black text-blue-600">₹{{ invoice.total }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-bold rounded-full {% if invoice.status == 'Paid' %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">{{ invoice.status }}</span>
+                                    <span class="px-3 py-1 inline-flex text-xs font-bold rounded-full {% if invoice.status == 'Paid' %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">{{ invoice.status }}</span>
                                 </td>
                             </tr>
                             {% else %}
-                            <tr><td colspan="4" class="px-6 py-4 text-center text-gray-500 font-medium">No recent invoices.</td></tr>
+                            <tr><td colspan="4" class="px-6 py-6 text-center text-sm text-gray-500 font-medium">No recent invoices.</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
+
+                <div class="md:hidden divide-y divide-gray-100">
+                    {% for invoice in recent_invoices %}
+                    <div class="p-4 flex justify-between items-center hover:bg-gray-50 transition">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
+                                <i class="fas fa-file-invoice-dollar text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-gray-900">#{{ invoice.invoice_number }}</p>
+                                <p class="text-xs text-gray-500 font-medium mt-0.5">{{ invoice.client.name }}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-black text-gray-900 mb-1">₹{{ invoice.total }}</p>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full {% if invoice.status == 'Paid' %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ invoice.status }}
+                            </span>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="p-6 text-center text-sm text-gray-500 font-medium">No recent invoices.</div>
+                    {% endfor %}
+                </div>
+
             </div>
         </main>
     </div>

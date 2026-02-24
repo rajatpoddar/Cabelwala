@@ -2,61 +2,64 @@
 {% block content %}
 <div class="min-h-screen bg-gray-50 flex">
     {% include 'admin/sidebar.html' %}
+    
     <div class="flex-1 overflow-auto p-4 md:p-8 w-full max-w-full">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6">Generate New Bill</h2>
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-extrabold text-gray-800">Generate New Bill</h2>
+        </div>
 
-        <div class="bg-white p-4 md:p-6 rounded-xl shadow-sm border border-gray-100 max-w-5xl">
+        <div class="bg-white p-5 md:p-8 rounded-2xl shadow-sm border border-gray-100 max-w-5xl">
             <form action="{{ url_for('admin.create_invoice') }}" method="POST">
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Select Client</label>
-                        <select name="client_id" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border bg-white focus:ring-blue-500 focus:border-blue-500">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+                    <div class="md:col-span-1">
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Select Client</label>
+                        <select name="client_id" required class="block w-full rounded-xl border-gray-200 bg-gray-50 p-3.5 border focus:bg-white focus:ring-2 focus:ring-blue-500 transition outline-none appearance-none">
                             <option value="">-- Choose Client --</option>
                             {% for client in clients %}
                                 <option value="{{ client.id }}">{{ client.name }} ({{ client.mobile }})</option>
                             {% endfor %}
                         </select>
                     </div>
+                    
+                    <div class="md:col-span-1">
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Bill For</label>
+                        <select name="bill_for" id="billForSelect" class="block w-full rounded-xl border-gray-200 bg-gray-50 p-3.5 border focus:bg-white focus:ring-2 focus:ring-blue-500 transition outline-none appearance-none" onchange="toggleRechargeOptions()">
+                            <option value="INTERNET RECHARGE">Internet Recharge</option>
+                            <option value="FIBER CONNECTION">New Fiber</option>
+                            <option value="CCTV INSTALLATION">CCTV Installation</option>
+                            <option value="CCTV MAINTENANCE">CCTV Maintenance</option> </select>
+                    </div>
+                    
+                    <div class="md:col-span-1">
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Payment Status</label>
+                        <select name="status" class="block w-full rounded-xl border-gray-200 bg-gray-50 p-3.5 border focus:bg-white focus:ring-2 focus:ring-green-500 transition outline-none appearance-none font-bold text-gray-700">
+                            <option value="Unpaid" class="text-red-600">Unpaid</option>
+                            <option value="Paid" class="text-green-600">Paid</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="rechargePeriodBox" class="bg-blue-50/50 p-5 rounded-2xl border border-blue-100 mb-6 transition-all">
+                    <label class="block text-sm font-bold text-blue-800 mb-3"><i class="fas fa-calendar-alt mr-2"></i> Recharge Period</label>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Bill For</label>
-                            <select name="bill_for" id="billForSelect" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border bg-white focus:ring-blue-500" onchange="toggleRechargeOptions()">
-                                <option value="INTERNET RECHARGE">Internet Recharge</option>
-                                <option value="CCTV INSTALLATION">CCTV Installation</option>
-                                <option value="FIBER CONNECTION">New Fiber</option>
-                            </select>
+                            <span class="text-[10px] font-extrabold uppercase text-gray-500 block mb-1">From Month</span>
+                            <input type="month" id="period_from" class="block w-full rounded-xl border-blue-200 bg-white p-3 border focus:ring-2 focus:ring-blue-500 transition outline-none" onchange="updateFirstRow()">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Payment Status</label>
-                            <select name="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border bg-white focus:ring-blue-500">
-                                <option value="Unpaid">Unpaid</option>
-                                <option value="Paid">Paid</option>
-                            </select>
+                            <span class="text-[10px] font-extrabold uppercase text-gray-500 block mb-1">To Month</span>
+                            <input type="month" id="period_to" class="block w-full rounded-xl border-blue-200 bg-white p-3 border focus:ring-2 focus:ring-blue-500 transition outline-none" onchange="updateFirstRow()">
                         </div>
                     </div>
                 </div>
 
-                <div id="rechargePeriodBox" class="bg-blue-50 p-4 rounded-lg border border-blue-100 mb-6">
-                    <label class="block text-sm font-medium text-blue-800 mb-2"><i class="fas fa-calendar-alt mr-1"></i> Recharge Period</label>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <span class="text-xs text-gray-500">From Month</span>
-                            <input type="month" id="period_from" class="block w-full rounded-md border-blue-300 shadow-sm sm:text-sm p-2 border focus:ring-blue-500 focus:border-blue-500" onchange="updateFirstRow()">
-                        </div>
-                        <div>
-                            <span class="text-xs text-gray-500">To Month</span>
-                            <input type="month" id="period_to" class="block w-full rounded-md border-blue-300 shadow-sm sm:text-sm p-2 border focus:ring-blue-500 focus:border-blue-500" onchange="updateFirstRow()">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-4 border-b pb-2 mt-4 space-y-2 md:space-y-0">
-                    <h3 class="text-lg font-semibold text-gray-800">Bill Items</h3>
-                    <div class="flex items-center space-x-2 bg-gray-50 p-2 rounded w-fit">
-                        <span class="text-sm text-gray-600 font-medium">Quick Add Plan:</span>
-                        <select id="planSelect" class="rounded border-gray-300 text-sm p-1.5 focus:ring-blue-500" onchange="addPlanToTable()">
-                            <option value="">-- Select Plan --</option>
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 mt-8 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                    <h3 class="text-lg font-bold text-gray-800 mb-3 sm:mb-0 px-2">Bill Items</h3>
+                    <div class="flex items-center w-full sm:w-auto bg-white rounded-lg border border-gray-200 p-1">
+                        <span class="text-xs text-gray-500 font-bold uppercase px-3 whitespace-nowrap">Quick Add</span>
+                        <select id="planSelect" class="w-full sm:w-48 rounded-md border-0 bg-transparent py-2 pl-2 pr-8 text-sm font-bold text-blue-700 focus:ring-0 outline-none appearance-none" onchange="addPlanToTable()">
+                            <option value="">-- Select a Plan --</option>
                             {% for plan in plans %}
                                 <option value="{{ plan.price }}" data-name="{{ plan.name }}">{{ plan.name }} - ₹{{ plan.price }}</option>
                             {% endfor %}
@@ -64,66 +67,63 @@
                     </div>
                 </div>
 
-                <div class="w-full mb-6">
-                    <div class="hidden md:grid grid-cols-12 gap-2 font-bold text-gray-500 text-xs uppercase mb-3 px-2">
-                        <div class="col-span-5">Description</div>
-                        <div class="col-span-2">Qty</div>
-                        <div class="col-span-2">Price (₹)</div>
-                        <div class="col-span-2">Total (₹)</div>
-                        <div class="col-span-1 text-center"></div>
-                    </div>
-
-                    <div id="itemsBody" class="space-y-4 md:space-y-2">
-                        <div class="item-row relative bg-gray-50 md:bg-transparent p-4 md:p-0 rounded-lg border md:border-0 border-gray-200 grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-2 items-center">
-                            
+                <div id="itemsBody" class="space-y-4">
+                    <div class="item-row relative bg-white p-4 md:p-5 rounded-2xl border border-gray-200 shadow-sm transition-all hover:border-blue-300">
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
                             <div class="md:col-span-5">
-                                <label class="md:hidden text-xs text-gray-500 font-bold mb-1 block">Item Description</label>
-                                <input type="text" name="description[]" required class="w-full border-gray-300 rounded md:p-1.5 p-2 shadow-sm md:shadow-none bg-white focus:ring-blue-500 focus:border-blue-500" placeholder="e.g. CNET DIAMOND">
+                                <label class="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wide mb-1.5">Item Description</label>
+                                <input type="text" name="description[]" required class="block w-full rounded-xl border-gray-200 bg-gray-50 p-3 border focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none font-semibold text-gray-800" placeholder="e.g. CNET DIAMOND">
                             </div>
                             
-                            <div class="grid grid-cols-3 gap-2 md:contents">
-                                <div class="md:col-span-2">
-                                    <label class="md:hidden text-xs text-gray-500 font-bold mb-1 block">Qty</label>
-                                    <input type="number" name="quantity[]" value="1" min="1" class="w-full border-gray-300 rounded md:p-1.5 p-2 qty-input focus:ring-blue-500 bg-white" oninput="calculateRow(this)">
+                            <div class="grid grid-cols-2 gap-4 md:col-span-4">
+                                <div>
+                                    <label class="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wide mb-1.5">Quantity</label>
+                                    <input type="number" name="quantity[]" value="1" min="1" class="block w-full rounded-xl border-gray-200 bg-gray-50 p-3 border focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none font-bold text-center qty-input" oninput="calculateRow(this)">
                                 </div>
-                                <div class="md:col-span-2">
-                                    <label class="md:hidden text-xs text-gray-500 font-bold mb-1 block">Price (₹)</label>
-                                    <input type="number" name="price[]" value="0" step="0.01" class="w-full border-gray-300 rounded md:p-1.5 p-2 price-input focus:ring-blue-500 bg-white" oninput="calculateRow(this)">
-                                </div>
-                                <div class="md:col-span-2">
-                                    <label class="md:hidden text-xs text-gray-500 font-bold mb-1 block">Total (₹)</label>
-                                    <input type="text" readonly class="w-full bg-gray-200 md:bg-gray-100 border-transparent text-gray-800 font-semibold rounded md:p-1.5 p-2 row-total" value="0.00">
+                                <div>
+                                    <label class="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wide mb-1.5">Price (₹)</label>
+                                    <input type="number" name="price[]" value="0" step="0.01" class="block w-full rounded-xl border-gray-200 bg-gray-50 p-3 border focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none font-bold text-center price-input" oninput="calculateRow(this)">
                                 </div>
                             </div>
                             
-                            <div class="md:col-span-1 absolute md:static top-2 right-2 md:text-center text-right">
-                                <button type="button" onclick="removeRow(this)" class="text-red-500 hover:text-red-700 bg-red-100 md:bg-transparent p-2 md:p-1 rounded-md transition"><i class="fas fa-trash"></i></button>
+                            <div class="flex items-center justify-between md:col-span-3 bg-gray-50 p-2 rounded-xl border border-gray-100">
+                                <div class="w-full text-center px-2">
+                                    <label class="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wide mb-0.5">Total</label>
+                                    <input type="text" readonly class="w-full bg-transparent border-none text-blue-700 font-black text-lg p-0 text-center row-total outline-none" value="0.00">
+                                </div>
+                                <button type="button" onclick="removeRow(this)" class="w-10 h-10 flex-shrink-0 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg flex items-center justify-center transition">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
-                    
-                    <button type="button" onclick="addRow()" class="mt-4 text-sm text-blue-600 font-semibold hover:text-blue-800 flex items-center bg-blue-50 px-3 py-2 rounded-md transition"><i class="fas fa-plus mr-2"></i> Add Another Item</button>
                 </div>
+                
+                <button type="button" onclick="addRow()" class="mt-4 w-full md:w-auto bg-blue-50 text-blue-700 font-bold py-3.5 px-6 rounded-xl border border-blue-100 hover:bg-blue-100 transition flex justify-center items-center shadow-sm">
+                    <i class="fas fa-plus-circle mr-2 text-lg"></i> Add Another Item
+                </button>
 
-                <div class="flex md:justify-end border-t pt-6">
-                    <div class="w-full md:w-72 space-y-3 bg-gray-50 p-4 rounded-lg border border-gray-100">
-                        <div class="flex justify-between items-center text-sm text-gray-600">
-                            <span>Subtotal:</span>
-                            <span id="subtotalDisplay" class="font-semibold text-gray-800">₹0.00</span>
+                <div class="flex flex-col md:flex-row md:justify-end border-t border-gray-100 mt-8 pt-6">
+                    <div class="w-full md:w-80 space-y-4 bg-gray-50/50 p-5 rounded-2xl border border-gray-200">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-bold text-gray-500 uppercase">Subtotal:</span>
+                            <span id="subtotalDisplay" class="font-bold text-gray-800 text-lg">₹0.00</span>
                         </div>
-                        <div class="flex justify-between items-center text-sm text-gray-600">
-                            <span>Tax Amount:</span>
-                            <input type="number" id="taxInput" name="tax" value="0" min="0" step="0.01" class="w-24 border-gray-300 rounded p-1.5 text-right focus:ring-blue-500" oninput="calculateGrandTotal()">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-bold text-gray-500 uppercase">Tax Amount (₹):</span>
+                            <input type="number" id="taxInput" name="tax" value="0" min="0" step="0.01" class="w-28 border-gray-300 bg-white rounded-lg p-2 text-right font-bold focus:ring-2 focus:ring-blue-500 outline-none shadow-sm" oninput="calculateGrandTotal()">
                         </div>
-                        <div class="flex justify-between items-center text-lg font-bold text-gray-900 border-t border-gray-200 pt-3 mt-2">
-                            <span>Grand Total:</span>
-                            <span id="grandTotalDisplay" class="text-blue-700">₹0.00</span>
+                        <div class="flex justify-between items-center border-t border-gray-200 pt-4 mt-2">
+                            <span class="text-base font-black text-gray-900 uppercase">Grand Total:</span>
+                            <span id="grandTotalDisplay" class="text-2xl font-black text-blue-700">₹0.00</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="mt-8">
-                    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-4 px-4 rounded-lg shadow-md hover:bg-blue-700 hover:shadow-lg transition">Generate Professional Invoice</button>
+                    <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-black text-lg py-4 px-4 rounded-2xl shadow-lg hover:shadow-xl hover:from-blue-700 hover:to-indigo-800 transition transform hover:-translate-y-0.5">
+                        <i class="fas fa-file-invoice mr-2"></i> Generate Professional Bill
+                    </button>
                 </div>
             </form>
         </div>
@@ -131,7 +131,7 @@
 </div>
 
 <script>
-    window.currentPlanName = "";
+    window.currentPlanName = ""; 
 
     function calculateRow(element) {
         let row = element.closest('.item-row');
@@ -156,28 +156,32 @@
     function addRow(desc = "", price = 0) {
         let tbody = document.getElementById('itemsBody');
         let div = document.createElement('div');
-        div.className = "item-row relative bg-gray-50 md:bg-transparent p-4 md:p-0 rounded-lg border md:border-0 border-gray-200 grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-2 items-center";
+        div.className = "item-row relative bg-white p-4 md:p-5 rounded-2xl border border-gray-200 shadow-sm transition-all hover:border-blue-300 mt-4";
         div.innerHTML = `
-            <div class="md:col-span-5">
-                <label class="md:hidden text-xs text-gray-500 font-bold mb-1 block">Item Description</label>
-                <input type="text" name="description[]" value="${desc}" required class="w-full border-gray-300 rounded md:p-1.5 p-2 shadow-sm md:shadow-none bg-white focus:ring-blue-500 focus:border-blue-500">
-            </div>
-            <div class="grid grid-cols-3 gap-2 md:contents">
-                <div class="md:col-span-2">
-                    <label class="md:hidden text-xs text-gray-500 font-bold mb-1 block">Qty</label>
-                    <input type="number" name="quantity[]" value="1" min="1" class="w-full border-gray-300 rounded md:p-1.5 p-2 qty-input focus:ring-blue-500 bg-white" oninput="calculateRow(this)">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+                <div class="md:col-span-5">
+                    <label class="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wide mb-1.5">Item Description</label>
+                    <input type="text" name="description[]" value="${desc}" required class="block w-full rounded-xl border-gray-200 bg-gray-50 p-3 border focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none font-semibold text-gray-800" placeholder="e.g. Router config">
                 </div>
-                <div class="md:col-span-2">
-                    <label class="md:hidden text-xs text-gray-500 font-bold mb-1 block">Price (₹)</label>
-                    <input type="number" name="price[]" value="${price}" step="0.01" class="w-full border-gray-300 rounded md:p-1.5 p-2 price-input focus:ring-blue-500 bg-white" oninput="calculateRow(this)">
+                <div class="grid grid-cols-2 gap-4 md:col-span-4">
+                    <div>
+                        <label class="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wide mb-1.5">Quantity</label>
+                        <input type="number" name="quantity[]" value="1" min="1" class="block w-full rounded-xl border-gray-200 bg-gray-50 p-3 border focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none font-bold text-center qty-input" oninput="calculateRow(this)">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wide mb-1.5">Price (₹)</label>
+                        <input type="number" name="price[]" value="${price}" step="0.01" class="block w-full rounded-xl border-gray-200 bg-gray-50 p-3 border focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none font-bold text-center price-input" oninput="calculateRow(this)">
+                    </div>
                 </div>
-                <div class="md:col-span-2">
-                    <label class="md:hidden text-xs text-gray-500 font-bold mb-1 block">Total (₹)</label>
-                    <input type="text" readonly class="w-full bg-gray-200 md:bg-gray-100 border-transparent text-gray-800 font-semibold rounded md:p-1.5 p-2 row-total" value="${price.toFixed(2)}">
+                <div class="flex items-center justify-between md:col-span-3 bg-gray-50 p-2 rounded-xl border border-gray-100">
+                    <div class="w-full text-center px-2">
+                        <label class="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wide mb-0.5">Total</label>
+                        <input type="text" readonly class="w-full bg-transparent border-none text-blue-700 font-black text-lg p-0 text-center row-total outline-none" value="${price.toFixed(2)}">
+                    </div>
+                    <button type="button" onclick="removeRow(this)" class="w-10 h-10 flex-shrink-0 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg flex items-center justify-center transition">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
                 </div>
-            </div>
-            <div class="md:col-span-1 absolute md:static top-2 right-2 md:text-center text-right">
-                <button type="button" onclick="removeRow(this)" class="text-red-500 hover:text-red-700 bg-red-100 md:bg-transparent p-2 md:p-1 rounded-md transition"><i class="fas fa-trash"></i></button>
             </div>
         `;
         tbody.appendChild(div);
@@ -190,7 +194,7 @@
             row.remove();
             calculateGrandTotal();
         } else {
-            alert("At least one item is required.");
+            alert("At least one item is required to generate a bill.");
         }
     }
 

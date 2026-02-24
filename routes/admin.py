@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, jsonify, send_from_directory
 from flask_login import login_user, logout_user, login_required, current_user
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 from models import db, Admin, Client, Invoice, InvoiceItem, BusinessProfile, Plan, Project, ServiceRequest
 from datetime import datetime
 import os
@@ -212,6 +212,7 @@ def complete_request(req_id):
     flash('Request marked as completed!', 'success')
     return redirect(url_for('admin.service_requests'))
 
+# --- Settings ---
 @admin_bp.route('/settings', methods=['GET', 'POST'])
 @login_required
 def settings():
@@ -222,6 +223,25 @@ def settings():
         db.session.commit()
 
     if request.method == 'POST':
+        # Check if this is a password update request
+        if 'update_password' in request.form:
+            current_password = request.form.get('current_password')
+            new_password = request.form.get('new_password')
+            confirm_password = request.form.get('confirm_password')
+
+            if not check_password_hash(current_user.password_hash, current_password):
+                flash('Current password is incorrect!', 'error')
+            elif new_password != confirm_password:
+                flash('New passwords do not match!', 'error')
+            elif len(new_password) < 6:
+                flash('New password must be at least 6 characters long.', 'error')
+            else:
+                current_user.password_hash = generate_password_hash(new_password)
+                db.session.commit()
+                flash('Password updated successfully!', 'success')
+            return redirect(url_for('admin.settings'))
+
+        # Otherwise, it's a profile settings update
         profile.company_name = request.form.get('company_name')
         profile.phone = request.form.get('phone')
         profile.email = request.form.get('email')

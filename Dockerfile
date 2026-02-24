@@ -26,5 +26,5 @@ COPY . .
 # Expose internal port
 EXPOSE 5000
 
-# Run the application using Gunicorn (Production server)
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "3", "app:create_app()"]
+# Run the application using Gunicorn with preload to fix SQLite locking
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "3", "--preload", "app:create_app()"]
