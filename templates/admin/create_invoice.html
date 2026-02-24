@@ -1,235 +1,238 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="min-h-screen bg-gray-50 flex">
-    
     {% include 'admin/sidebar.html' %}
-
     <div class="flex-1 overflow-auto p-8">
         <h2 class="text-2xl font-bold text-gray-800 mb-6">Generate New Bill</h2>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <form action="{{ url_for('admin.create_invoice') }}" method="POST" class="space-y-6">
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Select Client</label>
-                            <select name="client_id" id="clientSelect" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2 border bg-white" onchange="fetchClientHistory()">
-                                <option value="">-- Choose Client --</option>
-                                {% for client in clients %}
-                                    <option value="{{ client.id }}">{{ client.name }} ({{ client.mobile }})</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Bill For</label>
-                            <select name="bill_for" id="billForSelect" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2 border bg-white" onchange="toggleRechargeOptions()">
-                                <option value="INTERNET RECHARGE">Internet Recharge</option>
-                                <option value="CCTV INSTALLATION">CCTV Installation</option>
-                                <option value="FIBER CONNECTION">New Fiber Connection</option>
-                            </select>
-                        </div>
-                    </div>
-
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 max-w-5xl">
+            <form action="{{ url_for('admin.create_invoice') }}" method="POST">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Select Plan</label>
-                        <select id="planSelect" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2 border bg-white" onchange="applyPlan()">
-                            <option value="" data-name="">-- Custom / Manual Entry --</option>
-                            {% for plan in plans %}
-                                <option value="{{ plan.price }}" data-name="{{ plan.name }}">{{ plan.name }} - ₹{{ plan.price }}/mo</option>
+                        <label class="block text-sm font-medium text-gray-700">Select Client</label>
+                        <select name="client_id" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border bg-white">
+                            <option value="">-- Choose Client --</option>
+                            {% for client in clients %}
+                                <option value="{{ client.id }}">{{ client.name }} ({{ client.mobile }})</option>
                             {% endfor %}
                         </select>
                     </div>
-
-                    <div id="rechargePeriodBox" class="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                        <label class="block text-sm font-medium text-blue-800 mb-2">Recharge Period</label>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <input type="month" id="period_from" class="block w-full rounded-md border-blue-300 shadow-sm sm:text-sm p-2 border" onchange="updateItemDescription()">
-                                <span class="text-xs text-gray-500">From Month</span>
-                            </div>
-                            <div>
-                                <input type="month" id="period_to" class="block w-full rounded-md border-blue-300 shadow-sm sm:text-sm p-2 border" onchange="updateItemDescription()">
-                                <span class="text-xs text-gray-500">To Month</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Item Description / Plan Details</label>
-                        <input type="text" id="item_description" name="item_description" placeholder="e.g., CNET DIAMOND - AUG 2024 TO MAR 2025" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2 border">
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Quantity (Months)</label>
-                            <input type="number" id="qty" name="quantity" value="1" min="1" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2 border" oninput="calculateTotal()">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Price (₹)</label>
-                            <input type="number" id="price" name="price" value="0" min="0" step="0.01" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2 border" oninput="calculateTotal()">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Tax Amount (₹)</label>
-                            <input type="number" id="tax" name="tax" value="0" min="0" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2 border" oninput="calculateTotal()">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-900">Grand Total (₹)</label>
-                            <input type="text" id="grand_total" readonly class="mt-1 block w-full rounded-md border-transparent bg-gray-100 font-bold text-lg p-2 text-green-700">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Due Date</label>
-                            <input type="date" name="due_date" value="{{ datetime.now().strftime('%Y-%m-%d') }}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2 border">
+                            <label class="block text-sm font-medium text-gray-700">Bill For</label>
+                            <select name="bill_for" id="billForSelect" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border bg-white" onchange="toggleRechargeOptions()">
+                                <option value="INTERNET RECHARGE">Internet Recharge</option>
+                                <option value="CCTV INSTALLATION">CCTV Installation</option>
+                                <option value="FIBER CONNECTION">New Fiber</option>
+                            </select>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Payment Status</label>
-                            <select name="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2 border bg-white">
+                            <select name="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border bg-white">
                                 <option value="Unpaid">Unpaid</option>
                                 <option value="Paid">Paid</option>
                             </select>
                         </div>
                     </div>
-
-                    <div class="pt-4">
-                        <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            Generate & Save Invoice
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-fit">
-                <h3 class="text-lg font-semibold mb-4 border-b pb-2 text-gray-800">Previous Bill Details</h3>
-                <div id="historyLoading" class="hidden text-gray-500 text-sm">Loading data...</div>
-                <div id="noHistoryBox" class="text-gray-500 text-sm italic">Select a client to see their last generated invoice.</div>
-                
-                <div id="historyBox" class="hidden space-y-3">
-                    <div><p class="text-xs text-gray-500 uppercase">Last Billed For</p><p id="h_billFor" class="font-medium text-gray-800">-</p></div>
-                    <div><p class="text-xs text-gray-500 uppercase">Plan / Details</p><p id="h_desc" class="text-sm text-gray-700">-</p></div>
-                    <div class="flex justify-between border-t pt-2 mt-2">
-                        <div><p class="text-xs text-gray-500 uppercase">Date</p><p id="h_date" class="font-medium text-gray-800">-</p></div>
-                        <div class="text-right"><p class="text-xs text-gray-500 uppercase">Amount</p><p id="h_total" class="font-bold text-green-600">-</p></div>
-                    </div>
-                    <button type="button" onclick="copyHistoryDetails()" class="mt-4 w-full bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm py-2 rounded border border-gray-300 transition">Use Same Details</button>
                 </div>
-            </div>
+
+                <div id="rechargePeriodBox" class="bg-blue-50 p-4 rounded-lg border border-blue-100 mb-6">
+                    <label class="block text-sm font-medium text-blue-800 mb-2"><i class="fas fa-calendar-alt mr-1"></i> Recharge Period</label>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <span class="text-xs text-gray-500">From Month</span>
+                            <input type="month" id="period_from" class="block w-full rounded-md border-blue-300 shadow-sm sm:text-sm p-2 border" onchange="updateFirstRow()">
+                        </div>
+                        <div>
+                            <span class="text-xs text-gray-500">To Month</span>
+                            <input type="month" id="period_to" class="block w-full rounded-md border-blue-300 shadow-sm sm:text-sm p-2 border" onchange="updateFirstRow()">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center mb-2 border-b pb-2 mt-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Bill Items</h3>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-500">Quick Add Plan:</span>
+                        <select id="planSelect" class="rounded border-gray-300 text-sm p-1" onchange="addPlanToTable()">
+                            <option value="">-- Select Plan --</option>
+                            {% for plan in plans %}
+                                <option value="{{ plan.price }}" data-name="{{ plan.name }}">{{ plan.name }} - ₹{{ plan.price }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto mb-6">
+                    <table class="min-w-full divide-y divide-gray-200" id="itemsTable">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase w-24">Qty</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase w-32">Price (₹)</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase w-32">Total (₹)</th>
+                                <th class="px-4 py-2 w-10"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemsBody" class="divide-y divide-gray-100">
+                            <tr class="item-row">
+                                <td class="px-2 py-2"><input type="text" name="description[]" required class="w-full border-gray-300 rounded p-1" placeholder="e.g. CNET DIAMOND"></td>
+                                <td class="px-2 py-2"><input type="number" name="quantity[]" value="1" min="1" class="w-full border-gray-300 rounded p-1 qty-input" oninput="calculateRow(this)"></td>
+                                <td class="px-2 py-2"><input type="number" name="price[]" value="0" step="0.01" class="w-full border-gray-300 rounded p-1 price-input" oninput="calculateRow(this)"></td>
+                                <td class="px-2 py-2"><input type="text" readonly class="w-full bg-gray-50 border-transparent text-gray-700 font-medium rounded p-1 row-total" value="0.00"></td>
+                                <td class="px-2 py-2 text-center"><button type="button" onclick="removeRow(this)" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="button" onclick="addRow()" class="mt-3 text-sm text-blue-600 font-medium hover:underline"><i class="fas fa-plus"></i> Add New Row</button>
+                </div>
+
+                <div class="flex justify-end border-t pt-4">
+                    <div class="w-64 space-y-3">
+                        <div class="flex justify-between items-center text-sm text-gray-600">
+                            <span>Subtotal:</span>
+                            <span id="subtotalDisplay" class="font-medium">₹0.00</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm text-gray-600">
+                            <span>Tax Amount:</span>
+                            <input type="number" id="taxInput" name="tax" value="0" min="0" step="0.01" class="w-24 border-gray-300 rounded p-1 text-right" oninput="calculateGrandTotal()">
+                        </div>
+                        <div class="flex justify-between items-center text-lg font-bold text-gray-900 border-t pt-2">
+                            <span>Grand Total:</span>
+                            <span id="grandTotalDisplay">₹0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-md shadow hover:bg-blue-700">Generate Professional Invoice</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
 <script>
-    window.currentPlanName = ""; // Store selected plan name
+    window.currentPlanName = ""; // Store plan name globally
 
-    function calculateTotal() {
-        let qty = parseFloat(document.getElementById('qty').value) || 0;
-        let price = parseFloat(document.getElementById('price').value) || 0;
-        let tax = parseFloat(document.getElementById('tax').value) || 0;
-        let total = (qty * price) + tax;
-        document.getElementById('grand_total').value = "₹ " + total.toFixed(2);
+    // Row Calculation
+    function calculateRow(element) {
+        let row = element.closest('.item-row');
+        let qty = parseFloat(row.querySelector('.qty-input').value) || 0;
+        let price = parseFloat(row.querySelector('.price-input').value) || 0;
+        row.querySelector('.row-total').value = (qty * price).toFixed(2);
+        calculateGrandTotal();
     }
 
+    // Grand Total Calculation
+    function calculateGrandTotal() {
+        let subtotal = 0;
+        document.querySelectorAll('.row-total').forEach(input => {
+            subtotal += parseFloat(input.value) || 0;
+        });
+        document.getElementById('subtotalDisplay').innerText = "₹" + subtotal.toFixed(2);
+        
+        let tax = parseFloat(document.getElementById('taxInput').value) || 0;
+        let grandTotal = subtotal + tax;
+        document.getElementById('grandTotalDisplay').innerText = "₹" + grandTotal.toFixed(2);
+    }
+
+    // Dynamic Row Addition
+    function addRow(desc = "", price = 0) {
+        let tbody = document.getElementById('itemsBody');
+        let tr = document.createElement('tr');
+        tr.className = "item-row";
+        tr.innerHTML = `
+            <td class="px-2 py-2"><input type="text" name="description[]" value="${desc}" required class="w-full border-gray-300 rounded p-1"></td>
+            <td class="px-2 py-2"><input type="number" name="quantity[]" value="1" min="1" class="w-full border-gray-300 rounded p-1 qty-input" oninput="calculateRow(this)"></td>
+            <td class="px-2 py-2"><input type="number" name="price[]" value="${price}" step="0.01" class="w-full border-gray-300 rounded p-1 price-input" oninput="calculateRow(this)"></td>
+            <td class="px-2 py-2"><input type="text" readonly class="w-full bg-gray-50 border-transparent text-gray-700 font-medium rounded p-1 row-total" value="${price.toFixed(2)}"></td>
+            <td class="px-2 py-2 text-center"><button type="button" onclick="removeRow(this)" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button></td>
+        `;
+        tbody.appendChild(tr);
+        calculateGrandTotal();
+    }
+
+    function removeRow(button) {
+        let row = button.closest('tr');
+        if (document.querySelectorAll('.item-row').length > 1) {
+            row.remove();
+            calculateGrandTotal();
+        } else {
+            alert("At least one item is required.");
+        }
+    }
+
+    // Toggle Period Block
     function toggleRechargeOptions() {
-        const billFor = document.getElementById('billForSelect').value;
-        const rechargeBox = document.getElementById('rechargePeriodBox');
+        let billFor = document.getElementById('billForSelect').value;
+        let rechargeBox = document.getElementById('rechargePeriodBox');
         if (billFor === 'INTERNET RECHARGE') {
             rechargeBox.style.display = 'block';
         } else {
             rechargeBox.style.display = 'none';
         }
-        updateItemDescription();
+        updateFirstRow();
     }
 
-    function applyPlan() {
-        const planSelect = document.getElementById('planSelect');
-        const selectedOption = planSelect.options[planSelect.selectedIndex];
-        const price = selectedOption.value;
-        const planName = selectedOption.getAttribute('data-name');
-
-        if (price) {
-            document.getElementById('price').value = price;
-        }
+    // Automatically build the string "PLAN NAME - FROM TO TO" for the first row
+    function updateFirstRow() {
+        let billFor = document.getElementById('billForSelect').value;
+        let firstRowDesc = document.querySelector('.item-row input[name="description[]"]');
+        let firstRowQty = document.querySelector('.item-row .qty-input');
         
-        window.currentPlanName = planName;
-        updateItemDescription();
-    }
-
-    function updateItemDescription() {
-        const fromVal = document.getElementById('period_from').value;
-        const toVal = document.getElementById('period_to').value;
-        const billFor = document.getElementById('billForSelect').value;
-        let baseName = window.currentPlanName || "CUSTOM PLAN";
+        let baseName = window.currentPlanName || "";
         
-        if (billFor === 'INTERNET RECHARGE' && fromVal && toVal) {
-            const fromDate = new Date(fromVal + '-01');
-            const toDate = new Date(toVal + '-01');
+        if (billFor === 'INTERNET RECHARGE') {
+            let fromVal = document.getElementById('period_from').value;
+            let toVal = document.getElementById('period_to').value;
             
-            const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-            const fromStr = monthNames[fromDate.getMonth()] + " " + fromDate.getFullYear();
-            const toStr = monthNames[toDate.getMonth()] + " " + toDate.getFullYear();
-            
-            let months = (toDate.getFullYear() - fromDate.getFullYear()) * 12;
-            months -= fromDate.getMonth();
-            months += toDate.getMonth();
-            months = months < 0 ? 1 : months + 1;
-            
-            document.getElementById('qty').value = months;
-            document.getElementById('item_description').value = baseName + " - " + fromStr + " TO " + toStr;
+            if (fromVal && toVal) {
+                let fromDate = new Date(fromVal + '-01');
+                let toDate = new Date(toVal + '-01');
+                
+                let monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+                let fromStr = monthNames[fromDate.getMonth()] + " " + fromDate.getFullYear().toString().slice(-2);
+                let toStr = monthNames[toDate.getMonth()] + " " + toDate.getFullYear().toString().slice(-2);
+                
+                let months = (toDate.getFullYear() - fromDate.getFullYear()) * 12;
+                months -= fromDate.getMonth();
+                months += toDate.getMonth();
+                months = months <= 0 ? 1 : months + 1;
+                
+                firstRowQty.value = months;
+                firstRowDesc.value = (baseName ? baseName + " - " : "RECHARGE - ") + fromStr + " TO " + toStr;
+                calculateRow(firstRowQty);
+            } else if (baseName) {
+                firstRowDesc.value = baseName;
+            }
         } else {
-            if (window.currentPlanName) {
-                document.getElementById('item_description').value = baseName;
+            if (baseName) {
+                firstRowDesc.value = baseName;
             }
         }
-        calculateTotal();
     }
 
-    async function fetchClientHistory() {
-        const clientId = document.getElementById('clientSelect').value;
-        const historyBox = document.getElementById('historyBox');
-        const noHistoryBox = document.getElementById('noHistoryBox');
-        const loadingBox = document.getElementById('historyLoading');
+    // Triggered when a plan is selected from dropdown
+    function addPlanToTable() {
+        let select = document.getElementById('planSelect');
+        let selected = select.options[select.selectedIndex];
         
-        if (!clientId) {
-            historyBox.classList.add('hidden');
-            noHistoryBox.classList.remove('hidden');
-            return;
-        }
-
-        noHistoryBox.classList.add('hidden');
-        historyBox.classList.add('hidden');
-        loadingBox.classList.remove('hidden');
-
-        try {
-            const response = await fetch(`/admin/api/client/${clientId}/last_invoice`);
-            const data = await response.json();
+        if (selected.value) {
+            let price = parseFloat(selected.value);
+            window.currentPlanName = selected.getAttribute('data-name');
             
-            loadingBox.classList.add('hidden');
+            let firstRowPrice = document.querySelector('.item-row .price-input');
+            firstRowPrice.value = price;
             
-            if (data.found) {
-                document.getElementById('h_billFor').innerText = data.bill_for;
-                document.getElementById('h_desc').innerText = data.item_description;
-                document.getElementById('h_date').innerText = data.date;
-                document.getElementById('h_total').innerText = "₹" + data.total;
-                historyBox.classList.remove('hidden');
-            } else {
-                noHistoryBox.innerText = "No previous bills found for this client.";
-                noHistoryBox.classList.remove('hidden');
-            }
-        } catch (error) {
-            console.error("Error fetching history", error);
+            updateFirstRow();
+            calculateRow(firstRowPrice);
+            select.value = ""; // Reset dropdown
         }
     }
 
-    function copyHistoryDetails() {
-        document.getElementById('billForSelect').value = document.getElementById('h_billFor').innerText;
-        document.getElementById('item_description').value = document.getElementById('h_desc').innerText;
-        window.currentPlanName = ""; // reset plan name to use copied text
-        toggleRechargeOptions();
-    }
-
+    // On Load Check
     window.onload = function() {
         toggleRechargeOptions();
     };

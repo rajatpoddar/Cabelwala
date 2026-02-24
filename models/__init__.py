@@ -11,20 +11,18 @@ class Admin(UserMixin, db.Model):
 
 class BusinessProfile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    company_name = db.Column(db.String(100), default="CITYNET BROADBAND")
+    company_name = db.Column(db.String(100), default="CABELWALA")
     phone = db.Column(db.String(20))
     email = db.Column(db.String(100))
     address = db.Column(db.Text)
     gst_no = db.Column(db.String(50))
-    # Bank Details
     bank_name = db.Column(db.String(100))
     account_name = db.Column(db.String(100))
     account_number = db.Column(db.String(50))
     ifsc_code = db.Column(db.String(20))
     branch = db.Column(db.String(100))
-    # UPI Details
     upi_id = db.Column(db.String(100))
-    payee_name = db.Column(db.String(100)) # Naya field Payee ID ke liye
+    payee_name = db.Column(db.String(100))
     terms = db.Column(db.Text, default="WE DEAL IN: JIO FIBER INSTALLATION, CCTV CAMERA INSTALLATION, NETWORKING PRODUCTS")
 
 class Client(db.Model):
@@ -50,16 +48,25 @@ class Invoice(db.Model):
     invoice_number = db.Column(db.String(20), unique=True, nullable=False)
     client_id = db.Column(db.Integer, db.ForeignKey('client.id'), nullable=False)
     bill_for = db.Column(db.String(50), default='INTERNET RECHARGE')
-    item_description = db.Column(db.String(255), nullable=False)
-    quantity = db.Column(db.Integer, default=1)
-    price = db.Column(db.Float, nullable=False)
+    
+    # Naya: One-to-Many Relationship for multiple items
+    items = db.relationship('InvoiceItem', backref='invoice', lazy=True, cascade="all, delete-orphan")
+    
     subtotal = db.Column(db.Float, nullable=False)
     tax = db.Column(db.Float, default=0.0)
     total = db.Column(db.Float, nullable=False)
-    due_date = db.Column(db.Date, nullable=False)
     status = db.Column(db.String(20), default='Unpaid')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     pdf_filename = db.Column(db.String(100))
+
+# Naya Table for Bill Items
+class InvoiceItem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    invoice_id = db.Column(db.Integer, db.ForeignKey('invoice.id'), nullable=False)
+    description = db.Column(db.String(255), nullable=False)
+    quantity = db.Column(db.Integer, default=1)
+    price = db.Column(db.Float, nullable=False)
+    total = db.Column(db.Float, nullable=False)
 
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)

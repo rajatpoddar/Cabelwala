@@ -5,133 +5,130 @@
     <title>Invoice - {{ invoice.invoice_number }}</title>
     <style>
         @page { margin: 0; size: A4 portrait; }
-        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; margin: 0; padding: 40px; font-size: 13px; line-height: 1.5; }
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #222; margin: 0; padding: 30px 40px; font-size: 12px; line-height: 1.4; }
         
-        /* Colors */
-        :root {
-            --primary-color: #1e3a8a; /* A professional dark blue */
-            --secondary-color: #f3f4f6; /* Light gray for backgrounds */
-            --accent-color: #2563eb; /* Brighter blue for highlights */
-        }
+        /* Typography & Colors */
+        .primary-color { color: #1e3a8a; }
+        .bg-primary { background-color: #1e3a8a; color: white; }
+        .bg-light { background-color: #f8fafc; }
+        
+        /* Structural Tables */
+        table { width: 100%; border-collapse: collapse; }
+        td { vertical-align: top; }
 
-        /* Header */
-        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid var(--primary-color); }
-        .logo-section { display: flex; align-items: center; }
-        .logo { width: 100px; height: auto; margin-right: 20px; }
-        .company-details h1 { margin: 0; font-size: 24px; color: var(--primary-color); text-transform: uppercase; letter-spacing: 1px; }
-        .company-details p { margin: 2px 0; color: #555; }
-        .invoice-details { text-align: right; }
-        .invoice-details h2 { margin: 0; font-size: 28px; color: var(--primary-color); text-transform: uppercase; }
-        .invoice-details p { margin: 2px 0; font-size: 14px; }
-        .invoice-details strong { color: var(--accent-color); }
+        /* Header Area */
+        .header-table { margin-bottom: 20px; border-bottom: 3px solid #1e3a8a; padding-bottom: 15px; }
+        .logo-img { max-width: 90px; max-height: 90px; border-radius: 5px; }
+        .company-name { margin: 0; font-size: 22px; text-transform: uppercase; font-weight: bold; color: #1e3a8a; }
+        .company-info { margin: 2px 0; color: #444; font-size: 11px; }
+        .invoice-title { margin: 0; font-size: 26px; text-transform: uppercase; font-weight: bold; color: #1e3a8a; text-align: right; }
+        .invoice-meta { margin: 2px 0; font-size: 12px; text-align: right; }
 
-        /* Client & Service Info Boxes */
-        .info-boxes { display: flex; gap: 30px; margin-bottom: 30px; }
-        .info-box { flex: 1; background: var(--secondary-color); padding: 20px; border-radius: 8px; border-left: 4px solid var(--primary-color); }
-        .info-box h3 { margin: 0 0 10px 0; font-size: 16px; color: var(--primary-color); border-bottom: 1px solid #ddd; padding-bottom: 5px; text-transform: uppercase; }
-        .info-box p { margin: 4px 0; font-size: 14px; }
-        .bill-for-text { font-weight: bold; color: var(--accent-color); font-size: 15px; }
+        /* Info Boxes (Bill To & Bill For) */
+        .info-table { margin-bottom: 20px; border-spacing: 15px 0; border-collapse: separate; margin-left: -15px; width: calc(100% + 30px); }
+        .info-box { background-color: #f8fafc; padding: 12px 15px; border-radius: 6px; border-left: 3px solid #1e3a8a; }
+        .box-heading { margin: 0 0 5px 0; font-size: 13px; color: #1e3a8a; border-bottom: 1px solid #e2e8f0; padding-bottom: 3px; text-transform: uppercase; }
+        .box-text { margin: 3px 0; font-size: 12px; }
 
         /* Items Table */
-        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-        .items-table th { background-color: var(--primary-color); color: white; padding: 12px 15px; text-align: left; font-weight: 600; text-transform: uppercase; font-size: 12px; }
-        .items-table td { padding: 12px 15px; border-bottom: 1px solid #eee; }
-        .items-table tr:nth-child(even) { background-color: #f9fafb; }
+        .items-table { margin-bottom: 20px; border: 1px solid #cbd5e1; }
+        .items-table th { background-color: #1e3a8a; color: white; padding: 8px 10px; text-align: left; font-size: 11px; text-transform: uppercase; border: 1px solid #1e3a8a; }
+        .items-table td { padding: 8px 10px; border: 1px solid #cbd5e1; font-size: 12px; }
+        .items-table tr:nth-child(even) { background-color: #f8fafc; }
         .text-center { text-align: center; }
         .text-right { text-align: right; }
 
-        /* Totals Section */
-        .totals-section { display: flex; justify-content: flex-end; margin-bottom: 30px; }
-        .totals-table { width: 40%; border-collapse: collapse; }
-        .totals-table td { padding: 10px 15px; text-align: right; border-bottom: 1px solid #eee; }
-        .totals-table tr:last-child td { border-bottom: none; }
-        .grand-total-row { background-color: var(--primary-color); color: white; font-weight: bold; font-size: 18px; }
-        .grand-total-row td { padding: 15px; }
+        /* Totals Area */
+        .totals-wrapper { width: 100%; margin-bottom: 25px; }
+        .totals-table { width: 35%; float: right; }
+        .totals-table td { padding: 6px 10px; text-align: right; font-size: 12px; }
+        .grand-total-row { background-color: #1e3a8a; color: white; font-weight: bold; font-size: 15px; }
 
-        /* Payment Info & QR */
-        .payment-section { display: flex; gap: 30px; margin-bottom: 40px; page-break-inside: avoid; }
-        .payment-box { flex: 1; padding: 20px; border: 1px solid #eee; border-radius: 8px; }
-        .payment-box h3 { margin: 0 0 15px 0; font-size: 16px; color: var(--primary-color); text-decoration: underline; }
-        .payment-details p { margin: 5px 0; }
-        .qr-container { display: flex; gap: 20px; align-items: center; }
-        .qr-code { width: 110px; height: 110px; border: 1px solid #eee; padding: 5px; background: white; }
-        .upi-details { flex: 1; }
-        .upi-details p { margin: 5px 0; font-weight: 600; }
-        .scan-text { font-size: 12px; color: #666; font-style: italic; margin-top: 5px; }
+        /* Payment & QR */
+        .payment-table { clear: both; page-break-inside: avoid; border-spacing: 15px 0; border-collapse: separate; margin-left: -15px; width: calc(100% + 30px); }
+        .payment-box { padding: 12px 15px; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; }
+        .qr-layout { width: 100%; border-collapse: collapse; }
+        .qr-layout td { vertical-align: middle; border: none; padding: 0; }
+        .qr-img { width: 85px; height: 85px; border: 1px solid #cbd5e1; padding: 3px; }
 
-        /* Footer & Signature */
-        .footer-section { margin-top: auto; }
-        .signature-area { text-align: right; margin-bottom: 30px; }
-        .signature-line { display: inline-block; width: 200px; border-top: 2px solid var(--primary-color); padding-top: 10px; font-weight: bold; color: var(--primary-color); text-align: center; }
-        .footer-text { text-align: center; font-size: 11px; color: #666; padding-top: 20px; border-top: 1px solid #eee; text-transform: uppercase; letter-spacing: 0.5px; }
+        /* Footer */
+        .signature-area { margin-top: 30px; text-align: right; page-break-inside: avoid; }
+        .signature-line { display: inline-block; width: 150px; border-top: 1px solid #1e3a8a; padding-top: 5px; font-weight: bold; font-size: 11px; color: #1e3a8a; text-align: center; }
+        .footer-text { margin-top: 25px; text-align: center; font-size: 10px; color: #64748b; padding-top: 10px; border-top: 1px solid #e2e8f0; text-transform: uppercase; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="logo-section">
-            <img src="file://{{ config.BASE_DIR }}/static/logo.png" alt="Logo" class="logo">
-            <div class="company-details">
-                <h1>{{ business.company_name }}</h1>
-                <p>{{ business.address }}</p>
-                <p>Ismailpur, Deoghar, Jharkhand 814146</p> <p>Mobile: {{ business.phone }} | Email: {{ business.email }}</p>
-                {% if business.gst_no %}<p>GST No: {{ business.gst_no }}</p>{% endif %}
-            </div>
-        </div>
-        <div class="invoice-details">
-            <h2>Invoice</h2>
-            <p>Invoice No: <strong>{{ invoice.invoice_number }}</strong></p>
-            <p>Date: <strong>{{ invoice.created_at.strftime('%d/%m/%Y') }}</strong></p>
-            <p>Due Date: <strong>{{ invoice.due_date.strftime('%d/%m/%Y') }}</strong></p>
-        </div>
-    </div>
 
-    <div class="info-boxes">
-        <div class="info-box">
-            <h3>Bill To</h3>
-            <p><strong>{{ client.name }}</strong></p>
-            <p>Mobile: {{ client.mobile }}</p>
-            <p>{{ client.address }}, {{ client.area }}</p>
-        </div>
-        <div class="info-box">
-            <h3>Bill For</h3>
-            <p class="bill-for-text">{{ invoice.bill_for }}</p>
-            <p>Service Status: 
-                <span style="color: {% if invoice.status == 'Paid' %}#059669{% else %}#dc2626{% endif %}; font-weight: bold;">
-                    {{ invoice.status }}
-                </span>
-            </p>
-        </div>
-    </div>
+    <table class="header-table">
+        <tr>
+            {% if logo_base64 %}
+            <td style="width: 15%;">
+                <img src="data:image/png;base64,{{ logo_base64 }}" class="logo-img">
+            </td>
+            <td style="width: 45%; padding-left: 10px;">
+            {% else %}
+            <td style="width: 60%;">
+            {% endif %}
+                <p class="company-name">{{ business.company_name }}</p>
+                <p class="company-info">{{ business.address }}</p>
+                <p class="company-info">Mobile: {{ business.phone }} | Email: {{ business.email }}</p>
+                {% if business.gst_no %}<p class="company-info">GST No: {{ business.gst_no }}</p>{% endif %}
+            </td>
+            <td style="width: 40%;">
+                <p class="invoice-title">Invoice</p>
+                <p class="invoice-meta">Invoice No: <strong>{{ invoice.invoice_number }}</strong></p>
+                <p class="invoice-meta">Date: <strong>{{ invoice.created_at.strftime('%d/%m/%Y') }}</strong></p>
+            </td>
+        </tr>
+    </table>
+
+    <table class="info-table">
+        <tr>
+            <td class="info-box" style="width: 50%;">
+                <p class="box-heading">Bill To</p>
+                <p class="box-text"><strong>{{ client.name }}</strong></p>
+                <p class="box-text">Mobile: {{ client.mobile }}</p>
+                <p class="box-text">{{ client.address }}, {{ client.area }}</p>
+            </td>
+            <td class="info-box" style="width: 50%;">
+                <p class="box-heading">Bill For</p>
+                <p class="box-text" style="font-weight: bold; color: #2563eb; font-size: 14px;">{{ invoice.bill_for }}</p>
+                <p class="box-text">Status: <strong style="color: {% if invoice.status == 'Paid' %}#059669{% else %}#dc2626{% endif %};">{{ invoice.status }}</strong></p>
+            </td>
+        </tr>
+    </table>
 
     <table class="items-table">
         <thead>
             <tr>
                 <th width="5%" class="text-center">#</th>
-                <th width="50%">Item Description</th>
-                <th width="15%" class="text-center">Quantity</th>
+                <th width="55%">Item Description</th>
+                <th width="10%" class="text-center">Qty</th>
                 <th width="15%" class="text-right">Price (₹)</th>
                 <th width="15%" class="text-right">Total (₹)</th>
             </tr>
         </thead>
         <tbody>
+            {% for item in invoice.items %}
             <tr>
-                <td class="text-center">1</td>
-                <td style="font-weight: 500;">{{ invoice.item_description }}</td>
-                <td class="text-center">{{ invoice.quantity }}</td>
-                <td class="text-right">{{ "%.2f"|format(invoice.price) }}</td>
-                <td class="text-right">{{ "%.2f"|format(invoice.subtotal) }}</td>
+                <td class="text-center">{{ loop.index }}</td>
+                <td style="font-weight: 500;">{{ item.description }}</td>
+                <td class="text-center">{{ item.quantity }}</td>
+                <td class="text-right">{{ "%.2f"|format(item.price) }}</td>
+                <td class="text-right">{{ "%.2f"|format(item.total) }}</td>
             </tr>
+            {% endfor %}
         </tbody>
     </table>
 
-    <div class="totals-section">
+    <div class="totals-wrapper">
         <table class="totals-table">
             <tr>
                 <td>Subtotal:</td>
                 <td>₹{{ "%.2f"|format(invoice.subtotal) }}</td>
             </tr>
             <tr>
-                <td>Tax (0%):</td>
+                <td>Tax:</td>
                 <td>₹{{ "%.2f"|format(invoice.tax) }}</td>
             </tr>
             <tr class="grand-total-row">
@@ -139,41 +136,45 @@
                 <td>₹{{ "%.2f"|format(invoice.total) }}</td>
             </tr>
         </table>
+        <div style="clear: both;"></div>
     </div>
 
-    <div class="payment-section">
-        <div class="payment-box">
-            <h3>Bank Details</h3>
-            <div class="payment-details">
-                <p>Bank Name: <strong>{{ business.bank_name or '-' }}</strong></p>
-                <p>Account Name: <strong>{{ business.account_name or '-' }}</strong></p>
-                <p>Account Number: <strong>{{ business.account_number or '-' }}</strong></p>
-                <p>IFSC Code: <strong>{{ business.ifsc_code or '-' }}</strong></p>
-                <p>Branch: <strong>{{ business.branch or '-' }}</strong></p>
-            </div>
-        </div>
-        <div class="payment-box">
-            <h3>UPI Payment</h3>
-            <div class="qr-container">
-                {% if qr_code_data %}
-                <img src="data:image/png;base64,{{ qr_code_data }}" class="qr-code">
-                {% endif %}
-                <div class="upi-details">
-                    <p>UPI ID: {{ business.upi_id or '-' }}</p>
-                    <p>Payee: {{ business.payee_name or '-' }}</p>
-                    <p class="scan-text">Scan QR with any UPI App to Pay</p>
-                </div>
-            </div>
-        </div>
+    <table class="payment-table">
+        <tr>
+            <td class="payment-box" style="width: 50%;">
+                <p class="box-heading" style="border:none; text-decoration: underline;">Bank Details</p>
+                <p class="box-text">Bank: <strong>{{ business.bank_name or '-' }}</strong></p>
+                <p class="box-text">Account: <strong>{{ business.account_number or '-' }}</strong></p>
+                <p class="box-text">IFSC: <strong>{{ business.ifsc_code or '-' }}</strong></p>
+                <p class="box-text">Name: <strong>{{ business.account_name or '-' }}</strong></p>
+            </td>
+            <td class="payment-box" style="width: 50%;">
+                <p class="box-heading" style="border:none; text-decoration: underline;">UPI Payment</p>
+                <table class="qr-layout">
+                    <tr>
+                        {% if qr_code_data %}
+                        <td style="width: 100px;">
+                            <img src="data:image/png;base64,{{ qr_code_data }}" class="qr-img">
+                        </td>
+                        {% endif %}
+                        <td>
+                            <p class="box-text" style="font-weight: 600;">ID: {{ business.upi_id or '-' }}</p>
+                            <p class="box-text" style="font-weight: 600;">Payee: {{ business.payee_name or '-' }}</p>
+                            <p class="box-text" style="font-style: italic; color: #64748b; font-size: 10px;">Scan with any UPI App</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    <div class="signature-area">
+        <div class="signature-line">Authorized Signature</div>
     </div>
 
-    <div class="footer-section">
-        <div class="signature-area">
-            <div class="signature-line">Authorized Signature</div>
-        </div>
-        <div class="footer-text">
-            {{ business.terms or 'Thank you for your business!' }}
-        </div>
+    <div class="footer-text">
+        {{ business.terms or '' }}
     </div>
+
 </body>
 </html>

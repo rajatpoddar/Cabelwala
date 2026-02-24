@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, jsonify, send_from_directory
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash
-from models import db, Admin, Client, Invoice, BusinessProfile, Plan
+from models import db, Admin, Client, Invoice, InvoiceItem, BusinessProfile, Plan, Project
 from datetime import datetime
 import os
 from weasyprint import HTML
@@ -76,47 +76,71 @@ def create_invoice():
     if request.method == 'POST':
         client_id = request.form.get('client_id')
         bill_for = request.form.get('bill_for')
-        item_description = request.form.get('item_description')
-        quantity = int(request.form.get('quantity', 1))
-        price = float(request.form.get('price', 0))
         tax = float(request.form.get('tax', 0))
-        due_date_str = request.form.get('due_date')
         status = request.form.get('status', 'Unpaid')
         
-        subtotal = quantity * price
-        total = subtotal + tax
+        # Multiple Items Data Fetching
+        descriptions = request.form.getlist('description[]')
+        quantities = request.form.getlist('quantity[]')
+        prices = request.form.getlist('price[]')
+        
         inv_number = generate_invoice_number()
         
+        # Subtotal calculate karna sabhi items ko jodkar
+        subtotal = 0
         new_invoice = Invoice(
             invoice_number=inv_number, client_id=client_id, bill_for=bill_for,
-            item_description=item_description, quantity=quantity, price=price,
-            subtotal=subtotal, tax=tax, total=total,
-            due_date=datetime.strptime(due_date_str, '%Y-%m-%d'), status=status
+            subtotal=0, tax=tax, total=0, status=status
         )
         db.session.add(new_invoice)
+        db.session.flush() # ID generate karne ke liye
+        
+        for i in range(len(descriptions)):
+            desc = descriptions[i]
+            qty = int(quantities[i]) if quantities[i] else 1
+            price = float(prices[i]) if prices[i] else 0.0
+            item_total = qty * price
+            subtotal += item_total
+            
+            item = InvoiceItem(
+                invoice_id=new_invoice.id, description=desc, 
+                quantity=qty, price=price, total=item_total
+            )
+            db.session.add(item)
+            
+        new_invoice.subtotal = subtotal
+        new_invoice.total = subtotal + tax
         db.session.commit()
         
-        # WeasyPrint PDF Generation with QR Code
-        client = Client.query.get(client_id)
-        business = BusinessProfile.query.first() or BusinessProfile()
+        # Logo Base64 Fix (Taaki PDF me logo 100% dikhe)
+        logo_base64 = None
+        logo_path = os.path.join(current_app.config.get('BASE_DIR', os.getcwd()), 'static', 'logo.png')
+        if os.path.exists(logo_path):
+            with open(logo_path, "rb") as image_file:
+                logo_base64 = base64.b64encode(image_file.read()).decode("utf-8")
         
+        # QR Code Generation
+        business = BusinessProfile.query.first() or BusinessProfile()
         qr_base64 = None
         if business.upi_id:
             payee = business.payee_name or business.company_name
-            upi_url = f"upi://pay?pa={business.upi_id}&pn={payee}&am={total}&cu=INR"
+            upi_url = f"upi://pay?pa={business.upi_id}&pn={payee}&am={new_invoice.total}&cu=INR"
             qr = qrcode.QRCode(version=1, box_size=4, border=1)
             qr.add_data(upi_url)
             qr.make(fit=True)
             img = qr.make_image(fill_color="black", back_color="white")
+            from io import BytesIO
             buffered = BytesIO()
             img.save(buffered, format="PNG")
             qr_base64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
             
-        rendered_html = render_template('admin/invoice_pdf.html', invoice=new_invoice, client=client, business=business, qr_code_data=qr_base64)
+        client = Client.query.get(client_id)
+        rendered_html = render_template('admin/invoice_pdf.html', invoice=new_invoice, client=client, business=business, qr_code_data=qr_base64, logo_base64=logo_base64)
+        
         pdf_filename = f"{inv_number}.pdf"
         pdf_path = os.path.join(current_app.config['INVOICE_FOLDER'], pdf_filename)
-        
         HTML(string=rendered_html).write_pdf(pdf_path)
+        
         new_invoice.pdf_filename = pdf_filename
         db.session.commit()
         
@@ -125,7 +149,7 @@ def create_invoice():
         
     clients = Client.query.order_by(Client.name).all()
     plans = Plan.query.order_by(Plan.name).all()
-    return render_template('admin/create_invoice.html', clients=clients, plans=plans, datetime=datetime)
+    return render_template('admin/create_invoice.html', clients=clients, plans=plans)
 
 # --- Download PDF Route ---
 @admin_bp.route('/invoice/download/<filename>')
