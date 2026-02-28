@@ -32,6 +32,9 @@ class Client(db.Model):
     name = db.Column(db.String(100), nullable=False)
     mobile = db.Column(db.String(20), nullable=False)
     alt_mobile = db.Column(db.String(20))
+    email = db.Column(db.String(100))        # Naya Field
+    gst_no = db.Column(db.String(50))        # Naya Field
+    state = db.Column(db.String(100))        # Naya Field (e.g., 20-Jharkhand)
     address = db.Column(db.Text, nullable=False)
     area = db.Column(db.String(100))
     service_type = db.Column(db.String(50))
@@ -53,8 +56,13 @@ class Invoice(db.Model):
     
     items = db.relationship('InvoiceItem', backref='invoice', lazy=True, cascade="all, delete-orphan")
     
+    # GST Fields Added
+    is_gst_bill = db.Column(db.Boolean, default=False)
+    total_cgst = db.Column(db.Float, default=0.0)
+    total_sgst = db.Column(db.Float, default=0.0)
+    
     subtotal = db.Column(db.Float, nullable=False)
-    tax = db.Column(db.Float, default=0.0)
+    tax = db.Column(db.Float, default=0.0) # For extra other charges if any
     total = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(20), default='Unpaid')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -64,8 +72,14 @@ class InvoiceItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     invoice_id = db.Column(db.Integer, db.ForeignKey('invoice.id'), nullable=False)
     description = db.Column(db.String(255), nullable=False)
+    hsn_code = db.Column(db.String(50))      # Naya Field
     quantity = db.Column(db.Integer, default=1)
     price = db.Column(db.Float, nullable=False)
+    
+    gst_rate = db.Column(db.Float, default=0.0)
+    cgst_amount = db.Column(db.Float, default=0.0)
+    sgst_amount = db.Column(db.Float, default=0.0)
+    
     total = db.Column(db.Float, nullable=False)
 
 class Project(db.Model):

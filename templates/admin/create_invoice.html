@@ -28,7 +28,13 @@
                             <option value="INTERNET RECHARGE">Internet Recharge</option>
                             <option value="FIBER CONNECTION">New Fiber</option>
                             <option value="CCTV INSTALLATION">CCTV Installation</option>
-                            <option value="CCTV MAINTENANCE">CCTV Maintenance</option> </select>
+                            <option value="CCTV MAINTENANCE">CCTV Maintenance</option> 
+                            <option value="CAMERA & ACCESSORIES">Camera & Accessories Sale</option>
+                            <option value="NETWORKING PRODUCTS">Networking Products Sale</option>
+                            <option value="CABLE & WIRES">Cable & Wires Sale</option>
+                            <option value="PRODUCT SALE">General Product Sale</option>
+                            <option value="OTHER SERVICES">Other Services</option>
+                        </select>
                     </div>
                     
                     <div class="md:col-span-1">
@@ -36,6 +42,22 @@
                         <select name="status" class="block w-full rounded-xl border-gray-200 bg-gray-50 p-3.5 border focus:bg-white focus:ring-2 focus:ring-green-500 transition outline-none appearance-none font-bold text-gray-700">
                             <option value="Unpaid" class="text-red-600">Unpaid</option>
                             <option value="Paid" class="text-green-600">Paid</option>
+                        </select>
+                    </div>
+
+                    <div class="md:col-span-3 flex items-center bg-blue-50 p-3 rounded-xl border border-blue-200">
+                        <label class="inline-flex items-center cursor-pointer mr-4">
+                            <input type="checkbox" name="is_gst_bill" id="is_gst_bill" class="sr-only peer" onchange="toggleGstMode()">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            <span class="ml-3 text-sm font-bold text-gray-700">Generate GST Invoice</span>
+                        </label>
+                        
+                        <select id="default_gst_rate" class="hidden rounded-lg border-gray-300 bg-white p-2 text-sm font-bold focus:ring-blue-500 outline-none" onchange="applyDefaultGst()">
+                            <option value="0">0% GST</option>
+                            <option value="5">5% GST</option>
+                            <option value="12">12% GST</option>
+                            <option value="18" selected>18% GST</option>
+                            <option value="28">28% GST</option>
                         </select>
                     </div>
                 </div>
@@ -70,12 +92,17 @@
                 <div id="itemsBody" class="space-y-4">
                     <div class="item-row relative bg-white p-4 md:p-5 rounded-2xl border border-gray-200 shadow-sm transition-all hover:border-blue-300">
                         <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-                            <div class="md:col-span-5">
+                            
+                            <div class="md:col-span-4">
                                 <label class="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wide mb-1.5">Item Description</label>
                                 <input type="text" name="description[]" required class="block w-full rounded-xl border-gray-200 bg-gray-50 p-3 border focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none font-semibold text-gray-800" placeholder="e.g. CNET DIAMOND">
                             </div>
                             
-                            <div class="grid grid-cols-2 gap-4 md:col-span-4">
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:col-span-5">
+                                <div class="gst-field hidden">
+                                    <label class="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wide mb-1.5">HSN/SAC</label>
+                                    <input type="text" name="hsn_code[]" class="block w-full rounded-xl border-gray-200 bg-gray-50 p-3 border focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none font-bold text-gray-800" placeholder="HSN">
+                                </div>
                                 <div>
                                     <label class="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wide mb-1.5">Quantity</label>
                                     <input type="number" name="quantity[]" value="1" min="1" class="block w-full rounded-xl border-gray-200 bg-gray-50 p-3 border focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none font-bold text-center qty-input" oninput="calculateRow(this)">
@@ -83,6 +110,10 @@
                                 <div>
                                     <label class="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wide mb-1.5">Price (₹)</label>
                                     <input type="number" name="price[]" value="0" step="0.01" class="block w-full rounded-xl border-gray-200 bg-gray-50 p-3 border focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none font-bold text-center price-input" oninput="calculateRow(this)">
+                                </div>
+                                <div class="gst-field hidden">
+                                    <label class="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wide mb-1.5">GST %</label>
+                                    <input type="number" name="gst_rate[]" value="18" min="0" max="100" class="block w-full rounded-xl border-gray-200 bg-gray-50 p-3 border focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none font-bold text-center gst-input" oninput="calculateRow(this)">
                                 </div>
                             </div>
                             
@@ -95,6 +126,7 @@
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -109,10 +141,23 @@
                             <span class="text-sm font-bold text-gray-500 uppercase">Subtotal:</span>
                             <span id="subtotalDisplay" class="font-bold text-gray-800 text-lg">₹0.00</span>
                         </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm font-bold text-gray-500 uppercase">Tax Amount (₹):</span>
+                        
+                        <div id="gstTotalsDisplay" class="hidden space-y-2 border-t border-gray-200 pt-3 mt-2">
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="font-bold text-gray-500 uppercase">CGST:</span>
+                                <span id="cgstDisplay" class="font-bold text-gray-800">₹0.00</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="font-bold text-gray-500 uppercase">SGST:</span>
+                                <span id="sgstDisplay" class="font-bold text-gray-800">₹0.00</span>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center border-t border-gray-200 pt-3 mt-2">
+                            <span class="text-sm font-bold text-gray-500 uppercase">Other Charges (₹):</span>
                             <input type="number" id="taxInput" name="tax" value="0" min="0" step="0.01" class="w-28 border-gray-300 bg-white rounded-lg p-2 text-right font-bold focus:ring-2 focus:ring-blue-500 outline-none shadow-sm" oninput="calculateGrandTotal()">
                         </div>
+                        
                         <div class="flex justify-between items-center border-t border-gray-200 pt-4 mt-2">
                             <span class="text-base font-black text-gray-900 uppercase">Grand Total:</span>
                             <span id="grandTotalDisplay" class="text-2xl font-black text-blue-700">₹0.00</span>
@@ -133,23 +178,72 @@
 <script>
     window.currentPlanName = ""; 
 
+    function toggleGstMode() {
+        let isGst = document.getElementById('is_gst_bill').checked;
+        document.getElementById('default_gst_rate').classList.toggle('hidden', !isGst);
+        
+        document.querySelectorAll('.gst-field').forEach(field => {
+            field.classList.toggle('hidden', !isGst);
+        });
+        
+        document.getElementById('gstTotalsDisplay').classList.toggle('hidden', !isGst);
+        
+        if(isGst) applyDefaultGst();
+        calculateGrandTotal();
+    }
+
+    function applyDefaultGst() {
+        let defaultRate = document.getElementById('default_gst_rate').value;
+        document.querySelectorAll('.gst-input').forEach(input => {
+            input.value = defaultRate;
+            calculateRow(input);
+        });
+    }
+
     function calculateRow(element) {
         let row = element.closest('.item-row');
         let qty = parseFloat(row.querySelector('.qty-input').value) || 0;
         let price = parseFloat(row.querySelector('.price-input').value) || 0;
-        row.querySelector('.row-total').value = (qty * price).toFixed(2);
+        
+        let isGst = document.getElementById('is_gst_bill').checked;
+        let gstRate = isGst ? (parseFloat(row.querySelector('.gst-input').value) || 0) : 0;
+        
+        let baseTotal = qty * price;
+        let gstAmount = baseTotal * (gstRate / 100);
+        
+        row.querySelector('.row-total').value = (baseTotal + gstAmount).toFixed(2);
         calculateGrandTotal();
     }
 
     function calculateGrandTotal() {
         let subtotal = 0;
-        document.querySelectorAll('.row-total').forEach(input => {
-            subtotal += parseFloat(input.value) || 0;
+        let totalCgst = 0;
+        let totalSgst = 0;
+        let isGst = document.getElementById('is_gst_bill').checked;
+
+        document.querySelectorAll('.item-row').forEach(row => {
+            let qty = parseFloat(row.querySelector('.qty-input').value) || 0;
+            let price = parseFloat(row.querySelector('.price-input').value) || 0;
+            let baseTotal = qty * price;
+            subtotal += baseTotal;
+
+            if(isGst) {
+                let gstRate = parseFloat(row.querySelector('.gst-input').value) || 0;
+                let gstAmount = baseTotal * (gstRate / 100);
+                totalCgst += gstAmount / 2;
+                totalSgst += gstAmount / 2;
+            }
         });
+
         document.getElementById('subtotalDisplay').innerText = "₹" + subtotal.toFixed(2);
         
+        if(isGst) {
+            document.getElementById('cgstDisplay').innerText = "₹" + totalCgst.toFixed(2);
+            document.getElementById('sgstDisplay').innerText = "₹" + totalSgst.toFixed(2);
+        }
+        
         let tax = parseFloat(document.getElementById('taxInput').value) || 0;
-        let grandTotal = subtotal + tax;
+        let grandTotal = subtotal + totalCgst + totalSgst + tax;
         document.getElementById('grandTotalDisplay').innerText = "₹" + grandTotal.toFixed(2);
     }
 
@@ -157,13 +251,23 @@
         let tbody = document.getElementById('itemsBody');
         let div = document.createElement('div');
         div.className = "item-row relative bg-white p-4 md:p-5 rounded-2xl border border-gray-200 shadow-sm transition-all hover:border-blue-300 mt-4";
+        
+        let isGst = document.getElementById('is_gst_bill').checked;
+        let defaultRate = document.getElementById('default_gst_rate').value;
+        let gstHiddenClass = isGst ? "" : "hidden";
+        
         div.innerHTML = `
             <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-                <div class="md:col-span-5">
+                <div class="md:col-span-4">
                     <label class="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wide mb-1.5">Item Description</label>
                     <input type="text" name="description[]" value="${desc}" required class="block w-full rounded-xl border-gray-200 bg-gray-50 p-3 border focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none font-semibold text-gray-800" placeholder="e.g. Router config">
                 </div>
-                <div class="grid grid-cols-2 gap-4 md:col-span-4">
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:col-span-5">
+                    <div class="gst-field ${gstHiddenClass}">
+                        <label class="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wide mb-1.5">HSN/SAC</label>
+                        <input type="text" name="hsn_code[]" class="block w-full rounded-xl border-gray-200 bg-gray-50 p-3 border focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none font-bold text-gray-800" placeholder="HSN">
+                    </div>
                     <div>
                         <label class="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wide mb-1.5">Quantity</label>
                         <input type="number" name="quantity[]" value="1" min="1" class="block w-full rounded-xl border-gray-200 bg-gray-50 p-3 border focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none font-bold text-center qty-input" oninput="calculateRow(this)">
@@ -172,7 +276,12 @@
                         <label class="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wide mb-1.5">Price (₹)</label>
                         <input type="number" name="price[]" value="${price}" step="0.01" class="block w-full rounded-xl border-gray-200 bg-gray-50 p-3 border focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none font-bold text-center price-input" oninput="calculateRow(this)">
                     </div>
+                    <div class="gst-field ${gstHiddenClass}">
+                        <label class="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wide mb-1.5">GST %</label>
+                        <input type="number" name="gst_rate[]" value="${defaultRate}" min="0" max="100" class="block w-full rounded-xl border-gray-200 bg-gray-50 p-3 border focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none font-bold text-center gst-input" oninput="calculateRow(this)">
+                    </div>
                 </div>
+                
                 <div class="flex items-center justify-between md:col-span-3 bg-gray-50 p-2 rounded-xl border border-gray-100">
                     <div class="w-full text-center px-2">
                         <label class="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wide mb-0.5">Total</label>
@@ -185,7 +294,8 @@
             </div>
         `;
         tbody.appendChild(div);
-        calculateGrandTotal();
+        
+        calculateRow(div.querySelector('.price-input'));
     }
 
     function removeRow(button) {

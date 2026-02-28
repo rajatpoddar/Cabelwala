@@ -11,9 +11,10 @@ from io import BytesIO
 
 admin_bp = Blueprint('admin', __name__)
 
-def generate_invoice_number():
+def generate_invoice_number(is_gst=False):
     year = datetime.now().year
-    prefix = f"ISP-{year}-"
+    # GST bill hai to prefix GST hoga, warna ISP
+    prefix = f"GST-{year}-" if is_gst else f"ISP-{year}-"
     last_invoice = Invoice.query.filter(Invoice.invoice_number.like(f"{prefix}%")).order_by(Invoice.id.desc()).first()
     
     if last_invoice:
@@ -84,38 +85,56 @@ def create_invoice():
     if request.method == 'POST':
         client_id = request.form.get('client_id')
         bill_for = request.form.get('bill_for')
-        tax = float(request.form.get('tax', 0))
+        tax = float(request.form.get('tax', 0)) # Other additional charges
         status = request.form.get('status', 'Unpaid')
+        is_gst_bill = request.form.get('is_gst_bill') == 'on'
         
         descriptions = request.form.getlist('description[]')
+        hsn_codes = request.form.getlist('hsn_code[]')
         quantities = request.form.getlist('quantity[]')
         prices = request.form.getlist('price[]')
+        gst_rates = request.form.getlist('gst_rate[]') if is_gst_bill else [0] * len(descriptions)
         
-        inv_number = generate_invoice_number()
+        inv_number = generate_invoice_number(is_gst_bill)
         
         subtotal = 0
+        total_cgst = 0
+        total_sgst = 0
+        
         new_invoice = Invoice(
             invoice_number=inv_number, client_id=client_id, bill_for=bill_for,
-            subtotal=0, tax=tax, total=0, status=status
+            is_gst_bill=is_gst_bill, subtotal=0, total_cgst=0, total_sgst=0, tax=tax, total=0, status=status
         )
         db.session.add(new_invoice)
         db.session.flush()
         
         for i in range(len(descriptions)):
             desc = descriptions[i]
+            hsn = hsn_codes[i] if i < len(hsn_codes) else ''
             qty = int(quantities[i]) if quantities[i] else 1
             price = float(prices[i]) if prices[i] else 0.0
-            item_total = qty * price
-            subtotal += item_total
+            gst_rate = float(gst_rates[i]) if i < len(gst_rates) and gst_rates[i] else 0.0
+            
+            base_total = qty * price
+            item_cgst = (base_total * (gst_rate / 2)) / 100
+            item_sgst = (base_total * (gst_rate / 2)) / 100
+            item_final_total = base_total + item_cgst + item_sgst
+            
+            subtotal += base_total
+            total_cgst += item_cgst
+            total_sgst += item_sgst
             
             item = InvoiceItem(
-                invoice_id=new_invoice.id, description=desc, 
-                quantity=qty, price=price, total=item_total
+                invoice_id=new_invoice.id, description=desc, hsn_code=hsn,
+                quantity=qty, price=price, gst_rate=gst_rate,
+                cgst_amount=item_cgst, sgst_amount=item_sgst, total=item_final_total
             )
             db.session.add(item)
             
         new_invoice.subtotal = subtotal
-        new_invoice.total = subtotal + tax
+        new_invoice.total_cgst = total_cgst
+        new_invoice.total_sgst = total_sgst
+        new_invoice.total = subtotal + total_cgst + total_sgst + tax
         db.session.commit()
         
         logo_base64 = None
@@ -168,6 +187,9 @@ def clients():
             name=request.form.get('name'),
             mobile=request.form.get('mobile'),
             alt_mobile=request.form.get('alt_mobile'),
+            email=request.form.get('email'),         # Added
+            gst_no=request.form.get('gst_no'),       # Added
+            state=request.form.get('state'),         # Added
             address=request.form.get('address'),
             area=request.form.get('area'),
             service_type=request.form.get('service_type'),
@@ -238,6 +260,9 @@ def edit_client(client_id):
         client.name = request.form.get('name')
         client.mobile = request.form.get('mobile')
         client.alt_mobile = request.form.get('alt_mobile')
+        client.email = request.form.get('email')     # Added
+        client.gst_no = request.form.get('gst_no')   # Added
+        client.state = request.form.get('state')     # Added
         client.address = request.form.get('address')
         client.area = request.form.get('area')
         client.service_type = request.form.get('service_type')

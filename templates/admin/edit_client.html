@@ -29,6 +29,21 @@
                         <input type="tel" name="alt_mobile" value="{{ client.alt_mobile or '' }}" class="block w-full rounded-xl border-gray-200 bg-gray-50 p-3.5 border focus:bg-white focus:ring-2 focus:ring-blue-500 transition outline-none">
                     </div>
                 </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1">Email</label>
+                        <input type="email" name="email" value="{{ client.email or '' }}" class="block w-full rounded-xl border-gray-200 bg-gray-50 p-3.5 border focus:bg-white focus:ring-2 focus:ring-blue-500 transition outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1">GST Number</label>
+                        <input type="text" name="gst_no" value="{{ client.gst_no or '' }}" class="block w-full rounded-xl border-gray-200 bg-gray-50 p-3.5 border focus:bg-white focus:ring-2 focus:ring-blue-500 transition outline-none uppercase">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1">State & Code</label>
+                        <input type="text" name="state" value="{{ client.state or '' }}" placeholder="e.g. 20-Jharkhand" class="block w-full rounded-xl border-gray-200 bg-gray-50 p-3.5 border focus:bg-white focus:ring-2 focus:ring-blue-500 transition outline-none">
+                    </div>
+                </div>
                 
                 <div>
                     <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1">Full Address</label>

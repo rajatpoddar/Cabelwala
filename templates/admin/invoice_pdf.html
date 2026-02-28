@@ -40,7 +40,7 @@
 
         /* Totals Area */
         .totals-wrapper { width: 100%; margin-bottom: 25px; }
-        .totals-table { width: 35%; float: right; }
+        .totals-table { width: 40%; float: right; }
         .totals-table td { padding: 6px 10px; text-align: right; font-size: 12px; }
         .grand-total-row { background-color: #1e3a8a; color: white; font-weight: bold; font-size: 15px; }
 
@@ -75,7 +75,7 @@
                 {% if business.gst_no %}<p class="company-info">GST No: {{ business.gst_no }}</p>{% endif %}
             </td>
             <td style="width: 40%;">
-                <p class="invoice-title">Invoice</p>
+                <p class="invoice-title">{% if invoice.is_gst_bill %}Tax Invoice{% else %}Invoice{% endif %}</p>
                 <p class="invoice-meta">Invoice No: <strong>{{ invoice.invoice_number }}</strong></p>
                 <p class="invoice-meta">Date: <strong>{{ invoice.created_at.strftime('%d/%m/%Y') }}</strong></p>
             </td>
@@ -86,9 +86,12 @@
         <tr>
             <td class="info-box" style="width: 50%;">
                 <p class="box-heading">Bill To</p>
-                <p class="box-text"><strong>{{ client.name }}</strong></p>
+                <p class="box-text" style="font-size: 14px;"><strong>{{ client.name }}</strong></p>
                 <p class="box-text">Mobile: {{ client.mobile }}</p>
+                {% if client.email %}<p class="box-text">Email: {{ client.email }}</p>{% endif %}
                 <p class="box-text">{{ client.address }}, {{ client.area }}</p>
+                {% if client.state %}<p class="box-text">State: <strong>{{ client.state }}</strong></p>{% endif %}
+                {% if client.gst_no %}<p class="box-text">GSTIN: <strong style="color:#1e3a8a;">{{ client.gst_no }}</strong></p>{% endif %}
             </td>
             <td class="info-box" style="width: 50%;">
                 <p class="box-heading">Bill For</p>
@@ -102,9 +105,15 @@
         <thead>
             <tr>
                 <th width="5%" class="text-center">#</th>
-                <th width="55%">Item Description</th>
+                <th width="{% if invoice.is_gst_bill %}35%{% else %}55%{% endif %}">Item Description</th>
+                {% if invoice.is_gst_bill %}
+                <th width="10%" class="text-center">HSN/SAC</th>
+                {% endif %}
                 <th width="10%" class="text-center">Qty</th>
-                <th width="15%" class="text-right">Price (₹)</th>
+                <th width="15%" class="text-right">Rate (₹)</th>
+                {% if invoice.is_gst_bill %}
+                <th width="10%" class="text-center">GST %</th>
+                {% endif %}
                 <th width="15%" class="text-right">Total (₹)</th>
             </tr>
         </thead>
@@ -113,8 +122,14 @@
             <tr>
                 <td class="text-center">{{ loop.index }}</td>
                 <td style="font-weight: 500;">{{ item.description }}</td>
+                {% if invoice.is_gst_bill %}
+                <td class="text-center">{{ item.hsn_code or '-' }}</td>
+                {% endif %}
                 <td class="text-center">{{ item.quantity }}</td>
                 <td class="text-right">{{ "%.2f"|format(item.price) }}</td>
+                {% if invoice.is_gst_bill %}
+                <td class="text-center">{{ item.gst_rate }}%</td>
+                {% endif %}
                 <td class="text-right">{{ "%.2f"|format(item.total) }}</td>
             </tr>
             {% endfor %}
@@ -127,10 +142,22 @@
                 <td>Subtotal:</td>
                 <td>₹{{ "%.2f"|format(invoice.subtotal) }}</td>
             </tr>
+            {% if invoice.is_gst_bill %}
             <tr>
-                <td>Tax:</td>
+                <td>CGST:</td>
+                <td>₹{{ "%.2f"|format(invoice.total_cgst) }}</td>
+            </tr>
+            <tr>
+                <td>SGST:</td>
+                <td>₹{{ "%.2f"|format(invoice.total_sgst) }}</td>
+            </tr>
+            {% endif %}
+            {% if invoice.tax > 0 %}
+            <tr>
+                <td>Other Charges:</td>
                 <td>₹{{ "%.2f"|format(invoice.tax) }}</td>
             </tr>
+            {% endif %}
             <tr class="grand-total-row">
                 <td>Grand Total:</td>
                 <td>₹{{ "%.2f"|format(invoice.total) }}</td>
